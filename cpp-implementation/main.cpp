@@ -43,6 +43,32 @@ void build_stock(stack<card>* stock, vector<card>* deck) {
 	}	
 }
 
+// Movimentos possiveis
+
+// Vai fundo e coloca no montante de descarte 
+card acess_stock(stack<card>* stock, stack<card>* discard) {
+	card c;
+	if (!stock->empty()) {	
+		c = stock->top();
+		stock->pop();
+	
+		discard->push(c);
+	}
+	return c;
+}
+
+// Inserir numa fundacao especifica (fundacao eh o nome dado aos
+// montantes de despejo (ha 4, um para cada nipe);
+void insert_in_fundation(card c, stack<card>* fundation) {
+	if (!fundation->empty()) {
+				card temp = fundation->top();
+		if (temp->value < c->value && temp->suit.compare(c->suit)) {
+				fundation->push(c);
+		}
+	}
+
+}
+
 struct table {
 	card fundo[24];
 	card cemiterio[24];
@@ -76,7 +102,9 @@ int main() {
 	
 	// Cria o 'fundo', apos buildar o fundo,
 	// o deck de cartas ficará apenas com 28 elementos
-	build_stock(&stock, &c);			
+	build_stock(&stock, &c);
+
+	stack<card> discard;			
 		
 	// TODO
 	// distribuir 28 para as colunas (que sao 7)	
