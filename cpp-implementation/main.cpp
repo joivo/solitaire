@@ -1,48 +1,85 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string>
-#include <cstring>
+#include <stack>
+#include <algorithm>
+#include <vector>
+#include <iterator>
+
+#define HEART "H" // Copas
+#define CLUB "C" // Paus
+#define DIAMOND "D" // Ouro
+#define SPADE "S" // Espada
+
 using namespace std;
 
-struct carta {
-    string simbolo_numero;
-    string naipe;
+struct card {
+    int value;
+    string suit;
+    bool is_turned;
 };
 
-struct baralho {
-    // <3
-    carta copas[13];
-    //  / \
-    //   |
-    carta espada[13];
-    // /\
-    // \/
-    carta ouro[13];
-    // _\|/_
-    carta paus[13];
-};
+void assign_cards(string suit, vector <card>* cards) {
+	card c;
+	for (int i = 0; i < 13; i++)  {
+		c.suit = suit;
+		c.value = (i+1);
+		c.is_turned = false;
+		cards->push_back(c);
+	}		
+}
 
-struct mesa {
-	baralho baralho;
+void build_deck(vector<card>* cards) {
+	assign_cards(HEART, cards); 
+	assign_cards(CLUB, cards);
+	assign_cards(DIAMOND, cards);
+	assign_cards(SPADE, cards);
+}
 
-	carta fundo[24];
-	carta cemiterio[24];
+void build_stock(stack<card>* stock, vector<card>* deck) {
+	for (int i = 0; i < 24; i++) {
+		stock->push(deck->data()[i]);
+		deck->erase(deck->begin() + i);
+	}	
+}
+
+struct table {
+	card fundo[24];
+	card cemiterio[24];
 	// onde sera montado a sequencia com mesmo naipe
-	carta naipe1[13];
-	carta naipe2[13];
-	carta naipe3[13];
-	carta naipe4[13];
+	card naipe1[13];
+	card naipe2[13];
+	card naipe3[13];
+	card naipe4[13];
 
 	// colunas onde ira montar a sequencia com naipes alternados
-	carta coluna1[13];
-	carta coluna2[13];
-	carta coluna3[13];
-	carta coluna4[13];
-	carta coluna5[13];
-	carta coluna6[13];
-	carta coluna7[13];
+	card coluna1[13];
+	card coluna2[13];
+	card coluna3[13];
+	card coluna4[13];
+	card coluna5[13];
+	card coluna6[13];
+	card coluna7[13];
 };
 
 int main() {
+	
+	vector<card> c;	
+	
+	// Cria o baralho com 52 cartas e distribui os nipes e valores
+	build_deck(&c);
+	
+	// Embaralha as cartas
+	random_shuffle(c.begin(), c.end());	
+	
+	stack<card> stock; 
+	
+	// Cria o 'fundo', apos buildar o fundo,
+	// o deck de cartas ficará apenas com 28 elementos
+	build_stock(&stock, &c);			
+		
+	// TODO
+	// distribuir 28 para as colunas (que sao 7)	
+	
 	return 0;
 }
