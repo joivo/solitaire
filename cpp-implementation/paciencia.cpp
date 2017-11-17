@@ -12,6 +12,7 @@
 #define SPADE "S" // Espada
 
 using namespace std;
+const string INVALID_CMD = "Comando inválido!";
 
 struct card {
     int value;
@@ -19,8 +20,6 @@ struct card {
     bool is_turned;
 	bool is_valid;
 };
-
-const string INVALID_CMD = "Comando inválido!";
 
 vector <card> deck;
 stack<card> stock;
@@ -60,6 +59,7 @@ void replace_stock() {
     card c = discard.top();
     discard.pop();
     stock.push(c);
+	c.is_turned = false;
   }
 }
 
@@ -69,11 +69,80 @@ void acess_stock() {
 		c = stock.top();
 		stock.pop();	
 		discard.push(c);
+		c.is_turned = true;
 	} else {
 		if (!discard.empty()) {
 		replace_stock();
 		}
   	}	
+}
+
+void discard_to_fundation_heart() {
+	if (!discard.empty()) {
+		card c = discard.top();
+		if (fundation_heart.empty()) {
+			fundation_heart.push(c);
+			discard.pop();
+		} else if (c.is_valid && 
+						c.is_turned &&
+						fundation_heart.top().value < c.value &&
+						fundation_heart.top().suit.compare(c.suit)) {
+
+			fundation_heart.push(c);
+			discard.pop();
+		}	
+	}	
+}
+
+void discard_to_fundation_club() {
+	if (!discard.empty()) {
+		card c = discard.top();
+		if (fundation_club.empty()) {
+			fundation_club.push(c);
+			discard.pop();
+		} else if (c.is_valid && 
+						c.is_turned &&
+						fundation_club.top().value < c.value &&
+						fundation_club.top().suit.compare(c.suit)) {
+
+			fundation_club.push(c);
+			discard.pop();
+		}	
+	}	
+}
+
+void discard_to_fundation_diamond() {
+	if (!discard.empty()) {
+		card c = discard.top();
+		if (fundation_diamond.empty()) {
+			fundation_diamond.push(c);
+			discard.pop();
+		} else if (c.is_valid && 
+						c.is_turned &&
+						fundation_diamond.top().value < c.value &&
+						fundation_diamond.top().suit.compare(c.suit)) {
+
+			fundation_diamond.push(c);
+			discard.pop();
+		}	
+	}	
+}
+
+void discard_to_fundation_spade() {
+	if (!discard.empty()) {
+		card c = discard.top();
+		if (fundation_spade.empty()) {
+			fundation_spade.push(c);
+			discard.pop();
+		} else if (c.is_valid && 
+						c.is_turned &&
+						fundation_spade.top().value < c.value &&
+						fundation_spade.top().suit.compare(c.suit)) {
+
+			fundation_spade.push(c);
+			discard.pop();
+		}	
+	}	
 }
 
 void move_cards() {
@@ -124,6 +193,12 @@ void menu() {
 		cout << "--12-  [---] [---] [---] [---] [---] [---] [---]" << endl;
 		cout << "--13-  [---] [---] [---] [---] [---] [---] [---]" << endl << endl;
 		cout << "--14-  [---] [---] [---] [---] <=> Fundacoes    " << endl << endl;
+		cout << "        <C>   <P>   <O>   <E>" << endl; 
+		cout << "        <O>   <A>   <U>   <S>" << endl;
+		cout << "        <P>   <U>   <R>   <P>" << endl;
+		cout << "        <A>   <S>   <O>   <A>" << endl;
+		cout << "        <S>   <->   <->   <D>" << endl;
+		cout << "        <->   <->   <->   <A>" << endl << endl;
 		cout << "Escolha uma opcao:" << endl;
 		cout << "Opcao (1): puxar uma carta do estoque." << endl;
 		cout << "Opcao (2): mover uma carta." << endl;
@@ -145,14 +220,10 @@ void menu() {
 			cout << endl << "Opcao invalida" << endl << endl;
 		}
 	}
-
-}
-
-void run_game() {
-   	menu();   
 }
 
 int main() {
+	menu();		
 	
 	return 0;
 }
