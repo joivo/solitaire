@@ -20,6 +20,7 @@ struct card {
     string suit;
     bool is_turned;
 	bool is_valid;
+	string color; 
 };
 
 vector<card> deck;
@@ -45,9 +46,9 @@ string toString(card element) {
 		} else if (element.is_turned == true) {
 			return "???";
 		} else if(element.value < 10) {
-			return "0" + to_string(element.value) + element.suit;
+			return element.color + " 0" + to_string(element.value) + element.suit;
 		} else {
-			return to_string(element.value) + element.suit;
+			return element.color + " " + to_string(element.value) + element.suit;
 		}
 }
 
@@ -55,6 +56,11 @@ void assign_cards(string suit) {
 	card c;
 	for (int i = 0; i < 13; i++)  {
 		c.suit = suit;
+		if(c.suit.compare(HEART) || c.suit.compare(DIAMOND)){
+			c.color = "V";
+		}else {
+			c.color = "P";
+		}
 		c.value = (i+1);
 		c.is_turned = true;
 		c.is_valid = true;
