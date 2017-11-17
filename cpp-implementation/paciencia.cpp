@@ -241,17 +241,21 @@ void discard_to_colunm(stack <card>* colunm) {
 		} else {
 			stack<card> aux;
 			card aux_card;
-			while (!colunm->top().is_valid && !colunm->empty()) {    // Ando nos espaços vazios até chegar num lugar com carta 
-				aux_card = colunm->top();
-				aux.push(aux_card);
-				colunm->pop();
+			for(int i = 0; i < 13; i++) {
+				if(!colunm->top().is_valid) {
+					aux_card = colunm->top();
+					aux.push(aux_card);
+					colunm->pop();
+				}
 			}
+			// Ando nos espaços vazios até chegar num lugar com carta 
 			
 			if (c.value < aux_card.value && suits_compatibles(c.suit, aux_card.suit)) {
+				c.is_turned = false;
 				colunm->push(c);							 
 			}
 
-			while (colunm->size() <= 13 && !aux.empty()) {
+			while (colunm->size() < 13) {
 				aux_card = aux.top();
 				colunm->push(aux_card);
 				aux.pop();
@@ -357,30 +361,35 @@ void column_to_fundation(stack<card>* column) {
 }
 
 void between_colunms(stack<card>* col_part, stack<card>* col_cheg, int qntd_cards) {
-	if (!col_part->empty() && qntd_cards > 0) {
+	if (qntd_cards > 0 && qntd_cards < 13) {
 		stack<card> helper_column_part;
 		card aux_part;
-		while (!col_part->top().is_valid && !col_part->empty()) {
-			aux_part = col_part->top();
-			helper_column_part.push(aux_part);
-			col_part->pop();			
+		for(int i = 0; i < 13; i++) {
+			if(!col_part->top().is_valid && !col_part->top().is_turned) {
+				aux_part = col_part->top();
+				helper_column_part.push(aux_part);
+				col_part->pop(); 
+			}
 		}
 
 		stack<card> helper_column_cheg;
 		card aux_cheg;
-		while (!col_cheg->top().is_valid && !col_part->empty()) {
-			aux_cheg = col_cheg->top();
-			helper_column_cheg.push(aux_cheg);
-			col_cheg->pop();
-		}		 
+		for(int i = 0; i < 13; i++) {
+			if(!col_cheg->top().is_valid && !col_part->top().is_turned) {
+				aux_cheg = col_cheg->top();
+				helper_column_cheg.push(aux_cheg);
+				col_cheg->pop();
+			}
+		}	 
 		
 		stack<card> transfer_stack;
 		card card_to_transfer;
-		while (qntd_cards > 0 && !col_part->top().is_turned && !col_part->empty()) {
-			card_to_transfer = col_part->top();
-			transfer_stack.push(card_to_transfer);
-			col_part->pop();
-			qntd_cards--;
+		if(helper_column_part.size() <= qntd_cards) {
+			for(int i = 0; i < qntd_cards; i++) {
+				card_to_transfer = col_part->top();
+				transfer_stack.push(card_to_transfer);
+				col_part->pop();
+			}
 		}
 
 		if (col_cheg->empty()) {
