@@ -6,13 +6,12 @@
 #include <vector>
 #include <iterator>
 
-#define HEART "H" // Copas
-#define CLUB "C" // Paus
-#define DIAMOND "D" // Ouro
-#define SPADE "S" // Espada
-
 using namespace std;
 const string INVALID_CMD = "Comando inválido!";
+const string HEART = "C";
+const string CLUB = "P";
+const string DIAMOND = "O";
+const string SPADE = "E";
 
 struct card {
     int value;
@@ -21,7 +20,7 @@ struct card {
 	bool is_valid;
 };
 
-vector <card> deck;
+vector<card> deck;
 stack<card> stock;
 stack<card> discard;
 
@@ -40,13 +39,13 @@ stack<card> fundation_spade;
 
 string toString(card element) {
 		if (element.is_valid == false) {
-			return "---";
+			return "----";
 		} else if (element.is_turned == true) {
-			return "???";
+			return "????";
 		} else if(element.value < 10) {
-			return "0" + to_string(element.value) + element.suit;
+			return "0" + to_string(element.value) + ":" + element.suit;
 		} else {
-			return to_string(element.value) + element.suit;
+			return to_string(element.value) + ":" + element.suit;
 		}
 }
 
@@ -106,23 +105,27 @@ void replace_stock() {
   for (int i = 0; i < discard.size(); i++) {
     card c = discard.top();
     discard.pop();
-    stock.push(c);
 	c.is_turned = false;
+    stock.push(c);
+	
   }
 }
 
-void acess_stock() {
+bool acess_stock(bool flag) {
 	card c;
+	flag = false;
 	if (!stock.empty()) {	
 		c = stock.top();
-		stock.pop();	
-		discard.push(c);
-		c.is_turned = true;
+		stock.pop();
+		c.is_turned = false;	
+		discard.push(c);		
 	} else {
+		flag = true;
 		if (!discard.empty()) {
-		replace_stock();
+			replace_stock();
 		}
-  	}	
+  	}
+	return flag;	
 }
 
 void discard_to_fundation_heart() {
@@ -193,30 +196,134 @@ void discard_to_fundation_spade() {
 	}	
 }
 
+bool suits_compatibles(string suit1, string suit2) {
+	bool flag = false;
+
+	if (suit1.compare(HEART) || suit1.compare(DIAMOND) && ((suit2.compare(CLUB)) || suit2.compare(SPADE))) {
+		flag = true;
+	} else if ((suit1.compare(CLUB) || suit1.compare(SPADE)) && (suit2.compare(HEART) || suit2.compare(DIAMOND))) {
+		flag = true;
+	}
+
+	return flag;
+}
+
+void discard_to_fundation() {
+	cout << "Escolha uma opção de nipe da fundação." << endl << endl;
+	cout << "(1) Copas" << endl;
+	cout << "(2) Ouro" << endl;
+	cout << "(3) Paus" << endl;
+	cout << "(4) Espada" << endl;
+	int option;
+	cin >> option;
+
+	if (option == 1) {
+		discard_to_fundation_heart();
+	} else if (option == 2) {
+		discard_to_fundation_diamond();
+	} else if (option == 3) {
+		discard_to_fundation_club();
+	} else if (option == 4) {
+		discard_to_fundation_spade();
+	} else {
+		cout << endl << INVALID_CMD << endl;
+	}
+}
+
+void discard_to_colunm(stack <card>* colunm) {
+	if (!discard.empty()) {
+		card c = discard.top();
+		discard.pop();
+		if (colunm->empty() && discard.top().value == 13) { // Se for um rei e a coluna tiver vazia, coloca			
+			colunm->push(c);
+		} else {
+			stack<card> aux;
+			card aux_card;
+			while (!colunm->top().is_valid && !colunm->empty()) {    // Ando nos espaços vazios até chegar num lugar com carta 
+				aux_card = colunm->top();
+				aux.push(aux_card);
+				colunm->pop();
+			}
+			
+			if (c.value < aux_card.value && suits_compatibles(c.suit, aux_card.suit)) {
+				colunm->push(c);
+
+				while (colunm->size() <= 13 && !aux.empty()) {
+					aux_card = aux.top();
+					colunm->push(aux_card);
+					aux.pop();
+				}				 
+			}
+		}
+	}
+}
+
+void discard_to_colunm_options() {
+	cout << "Para qual das colunas você deseja mover?" << endl;
+	cout << "1" << endl;
+	cout << "2" << endl;
+	cout << "3" << endl;
+	cout << "4" << endl;
+	cout << "5" << endl;
+	cout << "6" << endl;
+	cout << "7" << endl;	
+
+	int option;
+	if (option == 1) {	
+		discard_to_colunm(&col1);
+	} else if(option == 2) {
+		discard_to_colunm(&col2);
+	} else if (option == 3) {
+		discard_to_colunm(&col3);
+	} else if (option == 4) {
+		discard_to_colunm(&col4);
+	} else if (option == 5) {
+		discard_to_colunm(&col5);
+	} else if (option == 6) {
+		discard_to_colunm(&col6);
+	} else if (option == 7) {
+		discard_to_colunm(&col7);
+	} else {
+		cout << endl << INVALID_CMD << endl;
+	}
+
+}
+
+void column_to_fundation() {
+
+}
+
+void between_colunms() {
+
+}
+
+void fundation_to_colunms() {
+
+}
 
 void move_cards() {
 		cout << "Escolha uma opcao de movimentacao:" << endl << endl;
-		cout << "Opcao (1): mover do descarte para as pilhas." << endl;
-		cout << "Opcao (2): mover do descarte para as fundacoes." << endl;
-		cout << "Opcao (3): mover entre pilhas." << endl;
-		cout << "Opcao (4): mover das pilhas para as fundacoes." << endl;
-		cout << "Opcao (5): mover das fundacoes para as pilhas." << endl << endl;
-		int opcao;
+		cout << "Opcao (1): mover do descarte para as fundacoes." << endl;
+		cout << "Opcao (2): mover do descarte para coluna" << endl;
+		cout << "Opcao (3): mover das colunas para as fundacoes." << endl;
+		cout << "Opcao (4): mover entre colunas." << endl;
+		cout << "Opcao (5): mover das fundacoes para colunas" << endl << endl;
+		int option;
 		
 		cout << "Opcao: ";
-		cin >>  opcao;
+		cin >>  option;
 		cout << endl;
 		
-		if (opcao == 1) {
-			// discard_to_stack();
-		} else if(opcao == 2) {
-			// discard_to_fundation();
-		} else if (opcao == 3) {
-			// stack_to_stack()
-		} else if (opcao == 4) {
-			// stack_to_fundation()
-		} else if (opcao == 5) {
-			// fundation_to_stack()
+		if (option == 1) {
+			discard_to_fundation();
+		} else if(option == 2) {
+			discard_to_colunm_options();
+		} else if (option == 3) {
+			column_to_fundation();
+		} else if (option == 4) {
+			between_colunms();
+		} else if (option == 5) {
+			fundation_to_colunms();
 		} else {
 			cout << endl << INVALID_CMD << endl;
 		}		 
@@ -288,39 +395,93 @@ void actual_state() {
 	}
 }
 
+void update_discard() {
+	card c;
+	if (!discard.empty()) {
+		c = discard.top();		
+		c.is_turned = false;		
+	}
+	cout << "------  ["+ toString(c) + "] <=> Descarte                       " << endl;
+};
+
+void legend() {
+	cout << "////////////////////////////////////////////////////////////////////////////////////////////////////////////" << endl;
+	cout << "/////////////////////// LEGENDA ///////////////////////////////////////////////////////////////////////" << endl;	
+	cout << "////////////////////////////////////////////////////////////////////////////////////////////////////////////" << endl;
+	cout << "////////////////////////////////////////////////////////////////////////////////////////////////////////////" << endl;
+	cout << "/////// ??? : A carta está virada para baixo (Não é possível saber qual o seu valor ou nipe)." << endl;
+	cout << "/////// --- : O campo da mesa está vazio, sendo possível mover uma carta para ele, caso obedeça as regras do jogo." << endl;
+	cout << "/////// As cartas sempre vêm acompanhadas do seu valor (inteiro de 1 à 13, significando do Às ao Rei) e de seu nipe." << endl;
+	cout << "////////////////////////////////////////////////////////////////////////////////////////////////////////////////////" << endl;
+};
+
+void update_fundations() {
+	card c, d, e, f;
+	if (!fundation_heart.empty() && !fundation_club.empty() &&
+		 !fundation_diamond.empty() && !fundation_spade.empty()) {
+			 c = fundation_heart.top();
+			 d = fundation_club.top();
+			 e = fundation_diamond.top();
+			 f = fundation_spade.top();			 			 
+		 }
+		 cout << "------  [" + toString(c) + "] ["+ toString(d) +"] ["+ toString(e) +"] ["+ toString(f) +"] <=> Fundacoes    " << endl << endl;
+}
+
+bool winner() {
+	return fundation_club.empty() &&
+	 	fundation_diamond.empty() &&
+		  fundation_heart.empty() &&
+		   fundation_spade.empty() &&
+		   	stock.empty() && discard.empty();
+}
+
 void menu() {
-	
-	while(true) {
-		cout << endl;	  
+	bool update_stock = false;
+	while(true) {		
+		cout << endl;	  		
 		cout << "        --1-- --2-- --3-- --4-- --5-- --6-- --7--" << endl;
-		cout << "------  [???] <=> Estoque                        " << endl;
-		cout << "------  [---] <=> Descarte                       " << endl;
+		if (update_stock) {
+			cout << "------  [???] <=> ESTOQUE ATUALIZADO!            " << endl;
+		} else {
+			cout << "------  [???] <=> Estoque                        " << endl;
+		}
+		update_discard();
 		cout << endl;
 		actual_state();
 		cout << endl;
-		cout << "------  [---] [---] [---] [---] <=> Fundacoes    " << endl << endl;
-		cout << "------   <C>   <P>   <O>   <E>" << endl;
-		cout << "------   <O>   <A>   <U>   <S>" << endl;
-		cout << "------   <P>   <U>   <R>   <P>" << endl;
-		cout << "------   <A>   <S>   <O>   <A>" << endl;
-		cout << "------   <S>   <->   <->   <D>" << endl;
-		cout << "------   <->   <->   <->   <A>" << endl << endl;
+		update_fundations();
+		cout << "------   <C>    <P>    <O>    <E>" << endl;
+		cout << "------   <O>    <A>    <U>    <S>" << endl;
+		cout << "------   <P>    <U>    <R>    <P>" << endl;
+		cout << "------   <A>    <S>    <O>    <A>" << endl;
+		cout << "------   <S>    <->    <->    <D>" << endl;
+		cout << "------   <->    <->    <->    <A>" << endl << endl;
 		cout << "Escolha uma opcao:" << endl;
 		cout << "Opcao (1): puxar uma carta do estoque." << endl;
 		cout << "Opcao (2): mover uma carta." << endl;
-		cout << "Opcao (3): sair do jogo." << endl << endl;
-		int opcao;
+		cout << "Opcao (3): legenda da simbologia do jogo." << endl;
+		cout << "Opcao (4): sair do jogo." << endl << endl;
+		int option;
 		
 		cout << "Opcao: ";
-		cin >>  opcao;
+		cin >>  option;
 		cout << endl;
 		
-		if (opcao == 1) {
-			// access_stock();
-		} else if(opcao == 2) {
+		if (option == 1) {
+			update_stock = acess_stock(update_stock);
+		} else if(option == 2) {
 			move_cards();
-		} else if (opcao == 3) {
+		} else if (option == 3) {
+			legend();
+		} else if ((option == 4) || winner()) {
 			cout << endl << "Jogo encerrado." << endl << endl;
+			cout << "     .-~~-." << endl;
+			cout << "    {      }" << endl;
+			cout << " .-~-.    .-~-." << endl;
+			cout << "{              }" << endl;
+			cout << " `.__.'||`.__.'" << endl;
+			cout << "       ||" << endl;
+			cout << "      '--`" << endl;
 			break;
 		} else {
 			cout << endl << INVALID_CMD << endl << endl;
@@ -330,8 +491,9 @@ void menu() {
 
 int main() {
 	build_deck();
-	build_stock();
-    random_shuffle(deck.begin(), deck.end());
+	random_shuffle(deck.begin(), deck.end());
+	build_stock();    
+	random_shuffle(deck.begin(), deck.end());
 	build_columns();
 	menu();		
 	
