@@ -246,14 +246,14 @@ void discard_to_colunm(stack <card>* colunm) {
 			}
 			
 			if (c.value < aux_card.value && suits_compatibles(c.suit, aux_card.suit)) {
-				colunm->push(c);
-
-				while (colunm->size() <= 13 && !aux.empty()) {
-					aux_card = aux.top();
-					colunm->push(aux_card);
-					aux.pop();
-				}				 
+				colunm->push(c);							 
 			}
+
+			while (colunm->size() <= 13 && !aux.empty()) {
+				aux_card = aux.top();
+				colunm->push(aux_card);
+				aux.pop();
+			}	
 		}
 	}
 }
@@ -269,6 +269,7 @@ void discard_to_colunm_options() {
 	cout << "7" << endl;	
 
 	int option;
+	cin >> option;
 	if (option == 1) {	
 		discard_to_colunm(&col1);
 	} else if(option == 2) {
@@ -286,19 +287,217 @@ void discard_to_colunm_options() {
 	} else {
 		cout << endl << INVALID_CMD << endl;
 	}
-
 }
 
-void column_to_fundation() {
+void column_to_fundation(stack<card>* column) {
+	if (!column->empty()) {
+		stack<card> reserve;
+		card aux;
+		while (!column->top().is_valid && !column->empty()) {
+			aux = column->top();
+			reserve.push(aux);
+			column->pop();
+			if (column->top().is_turned == true) {
+				column->top().is_turned = false;
+			}
+		}
 
+		if (aux.suit.compare("C")) {
+			if (fundation_heart.empty() && aux.value == 1) {
+				fundation_heart.push(aux);
+			} else {
+				card top_fundation = fundation_heart.top();
+
+				if (top_fundation.value == (aux.value+1)) {
+					fundation_heart.push(aux);
+				}
+			}
+		} else if (aux.suit.compare("P")) {
+			if (fundation_club.empty() && aux.value == 1) {
+				fundation_club.push(aux);
+			} else {
+				card top_fundation = fundation_club.top();
+
+				if (top_fundation.value == (aux.value+1)) {
+					fundation_club.push(aux);				
+				}
+			}
+
+		} else if (aux.suit.compare("O")) {
+			if (fundation_diamond.empty() && aux.value == 1) {
+				fundation_diamond.push(aux);
+			} else {
+				card top_fundation = fundation_diamond.top();
+
+				if (top_fundation.value == (aux.value+1)) {
+					fundation_diamond.push(aux);
+				}
+			}
+
+		} else if (aux.suit.compare("E")) {
+			if (fundation_spade.empty() && aux.value == 1) {
+				fundation_spade.push(aux);
+			} else {
+				card top_fundation = fundation_spade.top();
+
+				if (top_fundation.value == (aux.value+1)) {
+					fundation_spade.push(aux);
+				}
+			}
+		}
+
+		while (column->size() <= 13 && !reserve.empty()) {
+			aux = reserve.top();
+			column->push(aux);
+			reserve.pop();
+		}		
+	}
+}
+
+void fundation_options() {
+	cout << "Escolha uma das fundações pelo nipe." << endl << endl;
+	cout << "[C]opas" << endl;
+	cout << "[P]aus" << endl;
+	cout << "[O]uro" << endl;
+	cout << "[E]spadas" << endl;
+}
+
+void column_to_fundation_option() {
+	cout << "De qual das colunas você deseja mover?" << endl;
+	cout << "1" << endl;
+	cout << "2" << endl;
+	cout << "3" << endl;
+	cout << "4" << endl;
+	cout << "5" << endl;
+	cout << "6" << endl;
+	cout << "7" << endl;	
+
+	int option_col;
+	cin >> option_col;
+
+	fundation_options();
+
+	if (option_col == 1) {	
+		column_to_fundation(&col1);
+	} else if(option_col == 2) {
+		column_to_fundation(&col2);
+	} else if (option_col == 3) {
+		column_to_fundation(&col3);
+	} else if (option_col == 4) {
+		column_to_fundation(&col4);
+	} else if (option_col == 5) {
+		column_to_fundation(&col5);
+	} else if (option_col == 6) {
+		column_to_fundation(&col6);
+	} else if (option_col == 7) {
+		column_to_fundation(&col7);
+	} else {
+		cout << endl << INVALID_CMD << endl;
+	}
 }
 
 void between_colunms() {
 
 }
 
-void fundation_to_colunms() {
+void between_colunms_options() {
+	cout << "Diga-nos qual a coluna de partida [Opções no intervalo fechado: 1-7]: " << endl;
+	int col_part;
+	cin >> col_part;
 
+	cout << "Diga-nos qual a coluna de chegada [Opções no intervalo fechado: 1-7]: " << endl;
+	int col_cheg;
+	cin >> col_cheg;
+
+	cout << "Diga-nos quantas cartas você deseja mover [Opções no intervalo fechado: 1-13]: " << endl;
+	int qntd_cards;
+	cin >> qntd_cards;
+
+	if (col_part == col_cheg) {
+		cout << endl << INVALID_CMD << endl;
+	}
+
+	// if (col_part == 1) {	
+	// 	column_to_fundation(&col1);
+	// } else if(option_col == 2) {
+	// 	column_to_fundation(&col2);
+	// } else if (option_col == 3) {
+	// 	column_to_fundation(&col3);
+	// } else if (option_col == 4) {
+	// 	column_to_fundation(&col4);
+	// } else if (option_col == 5) {
+	// 	column_to_fundation(&col5);
+	// } else if (option_col == 6) {
+	// 	column_to_fundation(&col6);
+	// } else if (option_col == 7) {
+	// 	column_to_fundation(&col7);
+	// } else {
+	// 	cout << endl << INVALID_CMD << endl;
+	// }
+
+}
+
+void fundation_to_colunms(stack<card>* column, stack<card>* fundation) {
+	if (!fundation->empty()) {
+		card c = fundation->top();
+		stack<card> helper;
+		card aux;
+		while (!column->top().is_valid && !column->empty()) {
+			aux = column->top();
+			helper.push(aux);
+			column->pop();
+		}
+
+		if (c.value > aux.value && suits_compatibles(c.suit, aux.suit)) {
+			column->push(c);
+		}
+
+		while (column->size() <= 13 && !helper.empty()) {
+			aux = helper.top();
+			column->push(aux);
+			helper.pop();
+		}
+	}
+}
+
+void fundation_to_colunms_options() {
+	fundation_options();
+	string option;
+	cin >> option;
+	transform(option.begin(), option.end(), option.begin(), ::tolower);
+
+	cout << "Escolha para qual coluna voce quer mover a carta" << endl;
+	int col_result;
+	cin >> col_result;
+
+	stack<card>* guard;
+	if (col_result == 1) {
+		guard = &col1;
+	} else if (col_result == 2) {
+		guard = &col2;		
+	} else if (col_result == 3) {
+		guard = &col3;
+	} else if (col_result == 4 ) {
+		guard = &col4;
+	} else if (col_result == 5) {
+		guard = &col5;
+	} else if (col_result == 6) {
+		guard = &col6;
+	} else if (col_result == 7) {
+		guard = &col7;
+	} else {
+		cout << endl << INVALID_CMD << endl;
+	}
+
+	if (option.compare("c")) {
+		fundation_to_colunms(guard,&fundation_heart);
+	} else if (option.compare("p")) {
+		fundation_to_colunms(guard,&fundation_club);
+	} else if (option.compare("o")) {
+		fundation_to_colunms(guard,&fundation_diamond);
+	} else if (option.compare("e")) {
+		fundation_to_colunms(guard,&fundation_spade);
+	} 
 }
 
 void move_cards() {
@@ -318,12 +517,12 @@ void move_cards() {
 			discard_to_fundation();
 		} else if(option == 2) {
 			discard_to_colunm_options();
-		} else if (option == 3) {
-			column_to_fundation();
+		} else if (option == 3) {			
+			column_to_fundation_option();
 		} else if (option == 4) {
 			between_colunms();
 		} else if (option == 5) {
-			fundation_to_colunms();
+			fundation_to_colunms_options();
 		} else {
 			cout << endl << INVALID_CMD << endl;
 		}		 
