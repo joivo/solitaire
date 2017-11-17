@@ -696,9 +696,25 @@ bool winner() {
 		   	stock.empty() && discard.empty();
 }
 
+void club_symbol() {
+	cout << "     .-~~-." << endl;
+	cout << "    {      }" << endl;
+	cout << " .-~-.    .-~-." << endl;
+	cout << "{              }" << endl;
+	cout << " `.__.'||`.__.'" << endl;
+	cout << "       ||" << endl;
+	cout << "      '--`" << endl;
+}
+
 void menu() {
 	bool update_stock = false;
-	while(true) {		
+	while(true) {	
+		if (winner()) {
+			cout << endl << "Parabens, voce venceu!" << endl << endl;
+			club_symbol();	
+			break;
+		}
+
 		cout << endl;	  		
 		cout << "        --1-- --2-- --3-- --4-- --5-- --6-- --7--" << endl;
 		if (update_stock) {
@@ -711,16 +727,16 @@ void menu() {
 		actual_state();
 		cout << endl;
 		update_fundations();
-		cout << "------   <C>    <P>    <O>    <E>" << endl;
-		cout << "------   <O>    <A>    <U>    <S>" << endl;
-		cout << "------   <P>    <U>    <R>    <P>" << endl;
-		cout << "------   <A>    <S>    <O>    <A>" << endl;
-		cout << "------   <S>    <->    <->    <D>" << endl;
-		cout << "------   <->    <->    <->    <A>" << endl << endl;
+		cout << "------   <C>   <P>   <O>   <E>" << endl;
+		cout << "------   <O>   <A>   <U>   <S>" << endl;
+		cout << "------   <P>   <U>   <R>   <P>" << endl;
+		cout << "------   <A>   <S>   <O>   <A>" << endl;
+		cout << "------   <S>   <->   <->   <D>" << endl;
+		cout << "------   <->   <->   <->   <A>" << endl << endl;
 		cout << "Escolha uma opcao:" << endl;
 		cout << "Opcao (1): puxar uma carta do estoque." << endl;
 		cout << "Opcao (2): mover uma carta." << endl;
-		cout << "Opcao (3): sair do jogo." << endl << endl;
+		cout << "Opcao (qualquer outro digito): sair do jogo." << endl << endl;
 		int option;
 		
 		cout << "Opcao: ";
@@ -731,18 +747,10 @@ void menu() {
 			update_stock = acess_stock(update_stock);
 		} else if(option == 2) {
 			move_cards();
-		} else if ((option == 3) || winner()) {
-			cout << endl << "Jogo encerrado." << endl << endl;
-			cout << "     .-~~-." << endl;
-			cout << "    {      }" << endl;
-			cout << " .-~-.    .-~-." << endl;
-			cout << "{              }" << endl;
-			cout << " `.__.'||`.__.'" << endl;
-			cout << "       ||" << endl;
-			cout << "      '--`" << endl;
-			break;
 		} else {
-			cout << endl << INVALID_CMD << endl << endl;
+			cout << "Jogo encerrado." << endl;
+			club_symbol();
+			break;
 		}
 	}
 }
