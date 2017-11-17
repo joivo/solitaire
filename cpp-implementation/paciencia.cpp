@@ -17,89 +17,64 @@ struct card {
     int value;
     string suit;
     bool is_turned;
+	bool is_valid;
 };
 
-void assign_cards(string suit, vector <card>* cards) {
+const string INVALID_CMD = "Comando inválido!";
+
+vector <card> deck;
+stack<card> stock;
+stack<card> discard;
+
+stack<card> fundation_heart;
+stack<card> fundation_club;
+stack<card> fundation_diamond;
+stack<card> fundation_spade;
+
+void assign_cards(string suit) {
 	card c;
 	for (int i = 0; i < 13; i++)  {
 		c.suit = suit;
 		c.value = (i+1);
 		c.is_turned = false;
-		cards->push_back(c);
+		deck.push_back(c);
 	}		
 }
 
-void build_deck(vector<card>* cards) {
-	assign_cards(HEART, cards); 
-	assign_cards(CLUB, cards);
-	assign_cards(DIAMOND, cards);
-	assign_cards(SPADE, cards);
+void build_deck() {
+	assign_cards(HEART); 
+	assign_cards(CLUB);
+	assign_cards(DIAMOND);
+	assign_cards(SPADE);
 }
 
-void build_stock(stack<card>* stock, vector<card>* deck) {
+void build_stock() {
 	for (int i = 0; i < 24; i++) {
-		stock->push(deck->data()[i]);
-		deck->erase(deck->begin() + i);
+		stock.push(deck.data()[i]);
+		deck.erase(deck.begin() + i);
 	}	
 }
 
-// Movimentos possiveis
-
-void replace_stock(stack<card>* stock, stack<card>* discard) {
-  for (int i = 0; i < discard->size(); i++) {
-    card c = discard->top();
-    discard->pop();
-    stock->push(c);
+void replace_stock() {
+  for (int i = 0; i < discard.size(); i++) {
+    card c = discard.top();
+    discard.pop();
+    stock.push(c);
   }
 }
 
-// Vai fundo e coloca no montante de descarte 
-card acess_stock(stack<card>* stock, stack<card>* discard) {
+void acess_stock() {
 	card c;
-	if (!stock->empty()) {	
-		c = stock->top();
-		stock->pop();	
-		discard->push(c);
+	if (!stock.empty()) {	
+		c = stock.top();
+		stock.pop();	
+		discard.push(c);
 	} else {
-    if (!discard->empty()) {
-      replace_stock(stock, discard);
-    }
-  }
-	return c;
-}
-
-
-
-/* Inserir numa fundacao especifica (fundacao eh o nome dado aos
- * montantes de despejo (ha 4, um para cada nipe);
- */
-void insert_in_fundation(card c, stack<card>* fundation) {
-	if (!fundation->empty()) {
-			card temp = fundation->top();
-		if (temp.value < c.value && temp.suit.compare(c.suit)) {
-				fundation->push(c);
+		if (!discard.empty()) {
+		replace_stock();
 		}
-	}
+  	}	
 }
-
-struct table {
-	card fundo[24];
-	card cemiterio[24];
-	// onde sera montado a sequencia com mesmo naipe
-	card naipe1[13];
-	card naipe2[13];
-	card naipe3[13];
-	card naipe4[13];
-
-	// colunas onde ira montar a sequencia com naipes alternados
-	card coluna1[13];
-	card coluna2[13];
-	card coluna3[13];
-	card coluna4[13];
-	card coluna5[13];
-	card coluna6[13];
-	card coluna7[13];
-};
 
 void move_cards() {
 		cout << "Escolha uma opcao de movimentacao:" << endl << endl;
@@ -170,31 +145,14 @@ void menu() {
 			cout << endl << "Opcao invalida" << endl << endl;
 		}
 	}
-	
 
 }
 
-int main() {
-	menu();
-	vector<card> deck;	
-	
-	// Cria o baralho com 52 cartas e distribui os nipes e valores
-	build_deck(&deck);
-	
-	// Embaralha as cartas
-	random_shuffle(deck.begin(), deck.end());	
-	
-	stack<card> stock; 
-	
-	// Cria o 'fundo', apos buildar o fundo,
-	// o deck de cartas ficará apenas com 28 elementos
-	build_stock(&stock, &deck);
+void run_game() {
+   	menu();   
+}
 
-  // Campo onde o 'fundo' vai interagir
-	stack<card> discard;			
-		
-	// TODO
-	// distribuir 28 para as colunas (que sao 7)	
+int main() {
 	
 	return 0;
 }
