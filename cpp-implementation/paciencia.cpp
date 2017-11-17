@@ -20,7 +20,6 @@ struct card {
     string suit;
     bool is_turned;
 	bool is_valid;
-	string color; 
 };
 
 vector<card> deck;
@@ -46,9 +45,9 @@ string toString(card element) {
 		} else if (element.is_turned == true) {
 			return "???";
 		} else if(element.value < 10) {
-			return element.color + " 0" + to_string(element.value) + element.suit;
+			return "0" + to_string(element.value) + element.suit;
 		} else {
-			return element.color + " " + to_string(element.value) + element.suit;
+			return to_string(element.value) + element.suit;
 		}
 }
 
@@ -56,11 +55,6 @@ void assign_cards(string suit) {
 	card c;
 	for (int i = 0; i < 13; i++)  {
 		c.suit = suit;
-		if(c.suit.compare(HEART) || c.suit.compare(DIAMOND)){
-			c.color = "V";
-		}else {
-			c.color = "P";
-		}
 		c.value = (i+1);
 		c.is_turned = true;
 		c.is_valid = true;
@@ -241,7 +235,6 @@ void discard_to_fundation() {
 void discard_to_colunm(stack <card>* colunm) {
 	if (!discard.empty()) {
 		card c = discard.top();
-		discard.pop();
 		if (colunm->empty() && discard.top().value == 13) { // Se for um rei e a coluna tiver vazia, coloca			
 			colunm->push(c);
 		} else {
@@ -256,9 +249,10 @@ void discard_to_colunm(stack <card>* colunm) {
 			}
 			// Ando nos espaços vazios até chegar num lugar com carta 
 			
-			if (c.value < aux_card.value && suits_compatibles(c.suit, aux_card.suit)) {
+			if (c.value +1 == aux_card.value && suits_compatibles(c.suit, aux_card.suit)) {
 				c.is_turned = false;
-				colunm->push(c);							 
+				colunm->push(c);
+				discard.pop();							 
 			}
 
 			while (colunm->size() < 13) {
