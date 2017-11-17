@@ -354,6 +354,61 @@ void column_to_fundation(stack<card>* column) {
 	}
 }
 
+void between_colunms(stack<card>* col_part, stack<card>* col_cheg, int qntd_cards) {
+	if (!col_part->empty() && qntd_cards > 0) {
+		stack<card> helper_column_part;
+		card aux_part;
+		while (!col_part->top().is_valid && !col_part->empty()) {
+			aux_part = col_part->top();
+			helper_column_part.push(aux_part);
+			col_part->pop();			
+		}
+
+		stack<card> helper_column_cheg;
+		card aux_cheg;
+		while (!col_cheg->top().is_valid && !col_part->empty()) {
+			aux_cheg = col_cheg->top();
+			helper_column_cheg.push(aux_cheg);
+			col_cheg->pop();
+		}		 
+		
+		stack<card> transfer_stack;
+		card card_to_transfer;
+		while (qntd_cards > 0 && !col_part->top().is_turned && !col_part->empty()) {
+			card_to_transfer = col_part->top();
+			transfer_stack.push(card_to_transfer);
+			col_part->pop();
+		}
+
+		if (col_cheg->empty()) {
+			if (transfer_stack.top().value == 13) {
+				while (!transfer_stack.empty()) {
+					card_to_transfer = transfer_stack.top();
+					col_cheg->push(card_to_transfer);
+				}
+			}
+		} else {
+			if (col_cheg->top().value > transfer_stack.top().value && (suits_compatibles(col_cheg->top().suit, transfer_stack.top().suit))) {
+				while (!transfer_stack.empty()) {
+					card_to_transfer = transfer_stack.top();
+					col_cheg->push(card_to_transfer);
+				}
+			}
+		}
+		while (col_part->size() < 13 && !helper_column_part.empty()) {
+			aux_part = helper_column_part.top();
+			col_part->push(aux_part);
+			helper_column_part.pop();
+		}
+
+		while (col_cheg->size() < 13 && !helper_column_cheg.empty()) {
+			aux_cheg = helper_column_cheg.top();
+			col_part->push(aux_cheg);
+			helper_column_cheg.pop();
+		}		
+	}
+}
+
 void fundation_options() {
 	cout << "Escolha uma das fundações pelo nipe." << endl << endl;
 	cout << "[C]opas" << endl;
@@ -396,10 +451,6 @@ void column_to_fundation_option() {
 	}
 }
 
-void between_colunms() {
-
-}
-
 void between_colunms_options() {
 	cout << "Diga-nos qual a coluna de partida [Opções no intervalo fechado: 1-7]: " << endl;
 	int col_part;
@@ -413,28 +464,47 @@ void between_colunms_options() {
 	int qntd_cards;
 	cin >> qntd_cards;
 
-	if (col_part == col_cheg) {
-		cout << endl << INVALID_CMD << endl;
+	if (col_part != col_cheg) {
+		stack<card>* guard1;
+		if (col_part == 1) {
+			guard1 = &col1;
+		} else if (col_part == 2) {
+			guard1 = &col2;		
+		} else if (col_part == 3) {
+			guard1 = &col3;
+		} else if (col_part == 4 ) {
+			guard1 = &col4;
+		} else if (col_part == 5) {
+			guard1 = &col5;
+		} else if (col_part == 6) {
+			guard1 = &col6;
+		} else if (col_part == 7) {
+			guard1 = &col7;
+		} else {
+			cout << endl << INVALID_CMD << endl;
+		}
+	
+		stack<card>* guard2;
+		if (col_cheg == 1) {
+			guard2 = &col1;
+		} else if (col_cheg == 2) {
+			guard2 = &col2;		
+		} else if (col_cheg == 3) {
+			guard2 = &col3;
+		} else if (col_cheg == 4 ) {
+			guard2 = &col4;
+		} else if (col_cheg == 5) {
+			guard2 = &col5;
+		} else if (col_cheg == 6) {
+			guard2 = &col6;
+		} else if (col_cheg == 7) {
+			guard2 = &col7;
+		} else {
+			cout << endl << INVALID_CMD << endl;
+		}
+
+		between_colunms(guard1, guard2, qntd_cards);
 	}
-
-	// if (col_part == 1) {	
-	// 	column_to_fundation(&col1);
-	// } else if(option_col == 2) {
-	// 	column_to_fundation(&col2);
-	// } else if (option_col == 3) {
-	// 	column_to_fundation(&col3);
-	// } else if (option_col == 4) {
-	// 	column_to_fundation(&col4);
-	// } else if (option_col == 5) {
-	// 	column_to_fundation(&col5);
-	// } else if (option_col == 6) {
-	// 	column_to_fundation(&col6);
-	// } else if (option_col == 7) {
-	// 	column_to_fundation(&col7);
-	// } else {
-	// 	cout << endl << INVALID_CMD << endl;
-	// }
-
 }
 
 void fundation_to_colunms(stack<card>* column, stack<card>* fundation) {
@@ -520,7 +590,7 @@ void move_cards() {
 		} else if (option == 3) {			
 			column_to_fundation_option();
 		} else if (option == 4) {
-			between_colunms();
+			between_colunms_options();
 		} else if (option == 5) {
 			fundation_to_colunms_options();
 		} else {
@@ -605,7 +675,7 @@ void update_discard() {
 
 void legend() {
 	cout << "////////////////////////////////////////////////////////////////////////////////////////////////////////////" << endl;
-	cout << "/////////////////////// LEGENDA ///////////////////////////////////////////////////////////////////////" << endl;	
+	cout << "/////////////////////////////////////////////////// LEGENDA ////////////////////////////////////////////////" << endl;	
 	cout << "////////////////////////////////////////////////////////////////////////////////////////////////////////////" << endl;
 	cout << "////////////////////////////////////////////////////////////////////////////////////////////////////////////" << endl;
 	cout << "/////// ??? : A carta está virada para baixo (Não é possível saber qual o seu valor ou nipe)." << endl;
