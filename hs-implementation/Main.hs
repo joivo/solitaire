@@ -2,7 +2,9 @@
 -- Grupo : Arthur Sampaio; Emanuel Joivo; Taigo Lima Pereira;
 
 import Data.List
-import System.Random.Shuffle
+import System.Random
+import Data.Array.IO
+import Control.Monad
 
 -- Card Type
 data Card = Card { 
@@ -12,6 +14,21 @@ data Card = Card {
 , is_valid :: Bool -- True if a card of stock or False if 'generic' card * (for display purposes)
 , color :: String -- R to Red or B to Black
 } deriving (Show)
+
+-- Para embaralhar as cartas. Como retorna uma ação de IO, é necessário usá-la dentro de um bloco do (ou uma ação de IO maior).
+shuffle :: [a] -> IO [a]
+shuffle xs = do
+        ar <- newArray n xs
+        forM [1..n] $ \i -> do
+            j <- randomRIO (i,n)
+            vi <- readArray ar i
+            vj <- readArray ar j
+            writeArray ar j vi
+            return vj
+    where
+    n = length xs
+    newArray :: Int -> [a] -> IO (IOArray Int a)
+    newArray n xs =  newListArray (1,n) xs
 
 main :: IO ()
 main = do
@@ -64,7 +81,8 @@ generateDeck = concat [generateSuitCardsList "C" "RED",
                 generateSuitCardsList "E" "BLACK"]
 
 generateDefaultBoard :: [Card] -> [[Card]]
-generateDefaultBoard deck = [[]]
+generateDefaultBoard deck = 
+    [[]]
 
 updateBoard :: [[Card]] -> [[Card]]
 updateBoard currentBoard = [[]]
@@ -85,10 +103,7 @@ toString (Card {value = value, suit = suit, is_turned = is_turned, is_valid = is
                 | otherwise = "[" ++ color ++ show value ++ suit ++ "]"
 
 principalMenu :: IO ()
-principalMenu = do
-    let deckShuffle = shuffle generateDeck [1..]
-
-    print deckShuffle
+principalMenu = do       
     putStrLn "(------)(------)(------)(------)(------)(------)(------)(------)"
     putStrLn "(------)(------)(------)(------)(------)(------)(------)(------)"
     putStrLn "(------)                                                (------)"
