@@ -43,4 +43,4 @@ Basta que se tenha os compiladores de cada uma das linguagens supracitadas, o jo
 
 * **Arthur Sampaio** - (https://github.com/ArthurSampaio)
 * **Emanuel Joivo** - (https://github.com/emanueljoivo/)
-* **Tiago Lima** - (https://github.com/tiagolimpe)
+* **Tiago Pereira** - (https://github.com/tiagolimpe)
