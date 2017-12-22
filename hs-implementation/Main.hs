@@ -247,7 +247,7 @@ discardToColumns gameBoard = do
 			return gameBoard
 	else do		
 		let currentColumn = (gameBoard !! (columnNumber + 5))
-		let valid_cards = (filter (\x -> (is_valid x == True || is_turned x == True)) currentColumn)
+		let valid_cards = (filter (\x -> (is_valid x == True)) currentColumn)
 		let lastValidCard = lastValidCardInColumn valid_cards
 		print lastValidCard
 		print currentDiscardCard	
