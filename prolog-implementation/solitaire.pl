@@ -17,20 +17,55 @@ generateCardsList(Count, Suit, Color, List, X):- Count < 14,
 	C is Count + 1,
 	generateCardsList(C, Suit, Color, L, X).
 
-generateCardsList(Count, Suit, Color, List, X):- Count >= 14, X = List.
+generateCardsList(Count, Suit, Color, List, X):- Count >= 14, X = [List].
 	
 
-generate_deck(T, X):-
+generate_deck(X):-
 		generateCardsList(1, 'O', 'R', [], O),
 		generateCardsList(1, 'C', 'R', [], C),
 		generateCardsList(1, 'P', 'B', [], P),
 		generateCardsList(1, 'E', 'B', [], E),
-		append(O, C, L1),
-		append(P, E, L2),
+		nth0(0, O, O1),
+		nth0(0, C, C1),
+		nth0(0, P, P1),
+		nth0(0, E, E1),
+		append(O1, C1, L1),
+		append(P1, E1, L2),
 		append(L1, L2, Deck),
 		random_permutation(Deck, X).
 
+generate_board(BoardGame):-
+	generate_deck(Deck),
+	append([[]], [[]], L2),
+	append(L2, [[]], L3),
+	append(L3, [[]], L4),
+	append(L4, [[]], L5),
+	droppp(0, 0, Deck, [], Col1, Deck1),
+	droppp(0, 1, Deck1, [], Col2, Deck2),
+	droppp(0, 2, Deck2, [], Col3, Deck3),
+	droppp(0, 3, Deck3, [], Col4, Deck4),
+	droppp(0, 4, Deck4, [], Col5, Deck5),
+	droppp(0, 5, Deck5, [], Col6, Deck6),
+	droppp(0, 6, Deck6, [], Col7, Deck7),
+	append(L5, [Col1], L6),
+	append(L6, [Col2], L7),
+	append(L7, [Col3], L8),
+	append(L8, [Col4], L9),
+	append(L9, [Col5], L10),
+	append(L10, [Col6], L11),
+	append(L11, [Col7], L12),
+	append(Deck7, L12, BoardGame).
 
+droppp(To, From, List, Elems, Elements, L):- To == From,
+	nth0(To, List, Elem, L),
+	append(Elems, [Elem], Elements).
+
+droppp(To, From, List, Elems, Elements, L):- To < From,
+	nth0(To, List, Elem, Rest),
+	F is From - 1,
+	append(Elems, [Elem], Result),
+	droppp(To, F, Rest, Result, Elements, L).
+	
 card_to_string(Value, Suit, Color, IsValid, IsTurned, ToString):- 
 	IsValid == false, ToString = "[----]".
 
@@ -63,5 +98,5 @@ main:-
 	write(Y),nl,
 */
 
-	generate_deck(true, X),
-	write(X), nl.
+	generate_board(L),
+	write(L), nl.
