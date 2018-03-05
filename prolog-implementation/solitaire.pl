@@ -7,37 +7,42 @@
 */
 card(Value, Suit, Color, IsValid, IsTurned, [Value, Suit, Color, IsValid, IsTurned]).
 
-generateCardsList(Count, Suit, Color, _, X):- Count == 1,
-	card(Count, Suit, Color, true, true, Card),
-	C is Count + 1,
-	generateCardsList(C, Suit, Color, [Card], X).
-
-generateCardsList(Count, Suit, Color, List, X):- Count < 14, 
-	card(Count, Suit, Color, true, true, Card),
-	append(List, [Card], L),
-	C is Count + 1,
-	generateCardsList(C, Suit, Color, L, X).
-
-generateCardsList(Count, _, _, List, X):- Count >= 14, X = [List].
+generateCardsList(Suit, Color, X):-
+	generateCL(1, Suit, Color, [], X).
 	
-generateInvalidCards(Count, _, X):- Count == 1,
-	card(Count, 'X', 'X', false, false, Card),
+generateCL(Count, Suit, Color, _, X):- Count == 1,
+	card(Count, Suit, Color, true, true, Card),
 	C is Count + 1,
-	generateInvalidCards(C, [Card], X).
+	generateCL(C, Suit, Color, [Card], X).
 
-generateInvalidCards(Count, List, X):- Count < 27,
+generateCL(Count, Suit, Color, List, X):- Count < 14, 
+	card(Count, Suit, Color, true, true, Card),
+	append(List, [Card], L),
+	C is Count + 1,
+	generateCL(C, Suit, Color, L, X).
+
+generateCL(14, _, _, List, X):- X = [List].
+
+generateInvalidCards(X):-
+	generateIC(1, [], X).
+
+generateIC(1, _, X):- 
+	card(1, 'X', 'X', false, false, Card),
+	generateIC(2, [Card], X).
+
+generateIC(Count, List, X):- Count < 27,
 	card(Count, 'X', 'X', false, false, Card),
 	append(List, [Card], L),
 	C is Count + 1,
-	generateInvalidCards(C, L, X).
+	generateIC(C, L, X).
 
-generateInvalidCards(Count, List, X):- Count >= 27, X = List.
+generateIC(27, List, X):- X = List.
 
 generate_deck(X):-
-		generateCardsList(1, 'O', 'R', [], O),
-		generateCardsList(1, 'C', 'R', [], C),
-		generateCardsList(1, 'P', 'B', [], P),
-		generateCardsList(1, 'E', 'B', [], E),
+		generateCardsList('O', 'R', O),
+		generateCardsList('C', 'R', C),
+		generateCardsList('P', 'B', P),
+		generateCardsList('E', 'B', E),
 		nth0(0, O, O1),
 		nth0(0, C, C1),
 		nth0(0, P, P1),
@@ -47,11 +52,14 @@ generate_deck(X):-
 		append(L1, L2, Deck),
 		random_permutation(Deck, X).
 
-valid_cards_amount(Count, Cards, X):- 
+valid_cards_amount(Cards, X):-
+	vc_amount(0, Cards, X).
+
+vc_amount(Count, Cards, X):- 
 	length(Cards, Len),
 	Len =< Count, X = Count.
 
-valid_cards_amount(Count, Cards, X):- 
+vc_amount(Count, Cards, X):- 
 	length(Cards, Len),
 	Len > Count,
 	nth0(Count, Cards, Card),
@@ -59,22 +67,22 @@ valid_cards_amount(Count, Cards, X):-
 	IsValid == false,
 	X = Count.
 
-valid_cards_amount(Count, Cards, X):- 
+vc_amount(Count, Cards, X):- 
 	length(Cards, Len),
 	Len > Count,
 	nth0(Count, Cards, Card),
 	nth0(3, Card, IsValid),
 	IsValid == true,
 	C is Count + 1,
-	valid_cards_amount(C, Cards, X).
+	vc_amount(C, Cards, X).
 
 turn_off_last(Cards, X):-
-	valid_cards_amount(0, Cards, Num),
+	valid_cards_amount(Cards, Num),
 	Num == 0,
 	X = Cards.
 
 turn_off_last(Cards, X):-
-	valid_cards_amount(0, Cards, Num),
+	valid_cards_amount(Cards, Num),
 	Num > 0,
 	nth1(Num, Cards, Elem, Rest),
 	nth0(0, Elem, Value), nth0(1, Elem, Suit),
@@ -87,13 +95,13 @@ generate_board(BoardGame):-
 	append(L2, [[]], L3),
 	append(L3, [[]], L4),
 	append(L4, [[]], L5),
-	droppp(0, 0, Deck, [], Col1, Deck1),
-	droppp(0, 1, Deck1, [], Col2, Deck2),
-	droppp(0, 2, Deck2, [], Col3, Deck3),
-	droppp(0, 3, Deck3, [], Col4, Deck4),
-	droppp(0, 4, Deck4, [], Col5, Deck5),
-	droppp(0, 5, Deck5, [], Col6, Deck6),
-	droppp(0, 6, Deck6, [], Col7, Deck7),
+	droppp(0, 0, Deck, Col1, Deck1),
+	droppp(0, 1, Deck1, Col2, Deck2),
+	droppp(0, 2, Deck2, Col3, Deck3),
+	droppp(0, 3, Deck3, Col4, Deck4),
+	droppp(0, 4, Deck4, Col5, Deck5),
+	droppp(0, 5, Deck5, Col6, Deck6),
+	droppp(0, 6, Deck6, Col7, Deck7),
 	turn_off_last(Col1, C1),
 	turn_off_last(Col2, C2),
 	turn_off_last(Col3, C3),
@@ -101,7 +109,7 @@ generate_board(BoardGame):-
 	turn_off_last(Col5, C5),
 	turn_off_last(Col6, C6),
 	turn_off_last(Col7, C7),
-	generateInvalidCards(0, [], InvalidCards),
+	generateInvalidCards(InvalidCards),
 	append(C1, InvalidCards, Cl1),
 	append(C2, InvalidCards, Cl2),
 	append(C3, InvalidCards, Cl3),
@@ -118,15 +126,18 @@ generate_board(BoardGame):-
 	append(L11, [Cl7], L12),
 	append([Deck7], L12, BoardGame).
 
-droppp(To, From, List, Elems, Elements, L):- To == From,
+droppp(To, From, List, Elements, L):-
+	drop(To, From, List, [], Elements, L).
+
+drop(To, From, List, Elems, Elements, L):- To == From,
 	nth0(To, List, Elem, L),
 	append(Elems, [Elem], Elements).
 
-droppp(To, From, List, Elems, Elements, L):- To < From,
+drop(To, From, List, Elems, Elements, L):- To < From,
 	nth0(To, List, Elem, Rest),
 	F is From - 1,
 	append(Elems, [Elem], Result),
-	droppp(To, F, Rest, Result, Elements, L).
+	drop(To, F, Rest, Result, Elements, L).
 
 card_to_string(Card, ToString):-
 	length(Card, Len), Len == 0, ToString = '[----]'.
@@ -166,9 +177,11 @@ print_upside(List, String):-
 	last(List, Last),
 	card_to_string(Last, String).
 
-print_downside(Count, _, String, Output):-
-	Count >= 13, Output = String.
+p_downside(BoardGame, DownSide):-
+	print_downside(0, BoardGame, '', DownSide).
 
+print_downside(13, _, String, Output):-
+	Output = String.
 print_downside(Count, BoardGame, String, Output):- 
 	Count < 13,
 	nth0(6, BoardGame, C1),
@@ -224,7 +237,7 @@ print_current_board(BoardGame):-
 	nth0(0, BoardGame, Deck), nth0(1, BoardGame, Discard), nth0(2, BoardGame, F1),
 	nth0(3, BoardGame, F2), nth0(4, BoardGame, F3), nth0(5, BoardGame, F4),
 	print_upside(Deck, Discard, F1, F2, F3, F4, UpSide),
-	print_downside(0, BoardGame, '', DownSide),
+	p_downside(BoardGame, DownSide),
 	atom_concat(UpSide, DownSide, BoardString),
 	write(BoardString).
 	
