@@ -1,4 +1,3 @@
-:- initialization(main).
 
 /*
 	The card representation is a List that the positions, from 0 to 4 is
@@ -11,30 +10,35 @@ generateCardsList(Suit, Color, X):-
 	generateCL(1, Suit, Color, [], X)
 	.
 	
-generateCL(Count, Suit, Color, _, X):- Count == 1,
+generateCL(Count, Suit, Color, _, X):-
+	Count == 1,
 	card(Count, Suit, Color, true, true, Card),
 	C is Count + 1,
 	generateCL(C, Suit, Color, [Card], X).
 
-generateCL(Count, Suit, Color, List, X):- Count < 14, 
+generateCL(Count, Suit, Color, List, X):-
+	Count < 14, 
 	card(Count, Suit, Color, true, true, Card),
 	append(List, [Card], L),
 	C is Count + 1,
 	generateCL(C, Suit, Color, L, X).
 
-generateCL(14, _, _, List, X):- X = [List], !.
+generateCL(14, _, _, List, X):-
+	X = [List], !.
 
 generateInvalidCards(X):-
 	generateIC(1, [], X)
 	.
 
-generateIC(Count, List, X):- Count < 27,
+generateIC(Count, List, X):-
+	Count < 27,
 	card(Count, 'X', 'X', false, false, Card),
 	append(List, [Card], L),
 	C is Count + 1,
 	generateIC(C, L, X).
 
-generateIC(27, List, X):- X = List, !.
+generateIC(27, List, X):- 
+	X = List, !.
 
 generate_deck(X):-
 		generateCardsList('O', 'R', O),
@@ -54,11 +58,11 @@ valid_cards_amount(Cards, X):-
 	vc_amount(0, Cards, X)
 	.
 
-vc_amount(Count, Cards, X):- 
+vc_amount(Count, Cards, X):-
 	length(Cards, Len),
 	Len =< Count, X = Count, !.
 
-vc_amount(Count, Cards, X):- 
+vc_amount(Count, Cards, X):-
 	length(Cards, Len),
 	Len > Count,
 	nth0(Count, Cards, Card),
@@ -66,7 +70,7 @@ vc_amount(Count, Cards, X):-
 	IsValid == false,
 	X = Count, !.
 
-vc_amount(Count, Cards, X):- 
+vc_amount(Count, Cards, X):-
 	length(Cards, Len),
 	Len > Count,
 	nth0(Count, Cards, Card),
@@ -128,11 +132,13 @@ generate_board(BoardGame):-
 droppp(To, From, List, Elements, L):-
 	drop(To, From, List, [], Elements, L).
 
-drop(To, From, List, Elems, Elements, L):- To == From,
+drop(To, From, List, Elems, Elements, L):-
+	To == From,
 	nth0(To, List, Elem, L),
 	append(Elems, [Elem], Elements), !.
 
-drop(To, From, List, Elems, Elements, L):- To < From,
+drop(To, From, List, Elems, Elements, L):-
+	To < From,
 	nth0(To, List, Elem, Rest),
 	F is From - 1,
 	append(Elems, [Elem], Result),
@@ -153,7 +159,7 @@ card_to_string(Card, ToString):-
 card_to_string(_, _, _, IsValid, _, ToString):-
 	IsValid == false, ToString = '[----]'.
 
-card_to_string(_, _, _, IsValid, IsTurned, ToString):- 
+card_to_string(_, _, _, IsValid, IsTurned, ToString):-
 	IsValid == true, IsTurned == true, ToString = '[????]'.
 
 card_to_string(Value, Suit, Color, _, _, ToString):- 
@@ -162,7 +168,7 @@ card_to_string(Value, Suit, Color, _, _, ToString):-
 		atom_concat(Y, Color, Z),
 		atom_concat(Z, ']', ToString).
 
-card_to_string(Value, Suit, Color, _, _, ToString):- 
+card_to_string(Value, Suit, Color, _, _, ToString):-
 	Value > 10, atom_concat('[', Value, X),
 		atom_concat(X, Suit, Y),
 		atom_concat(Y, Color, Z),
@@ -181,7 +187,7 @@ p_downside(BoardGame):-
 	.
 
 print_downside(14, _):- !.
-print_downside(Count, BoardGame):- 
+print_downside(Count, BoardGame):-
 	Count >= 0, Count < 14,
 	nth0(6, BoardGame, C1),
 	nth0(7, BoardGame, C2),
@@ -239,9 +245,50 @@ print_current_board(BoardGame):-
 	print_upside(Deck, Discard, F1, F2, F3, F4), !,
 	p_downside(BoardGame).
 
-play_game(BoardGame, Winner, Option):-
+move(BoardGame, Moviment, NewBoard).
+
+getFromStock(BoardGame, NewBoard):-
+	nth0(0, BoardGame, Stock),
+	length(Stock, Len),
+	Len == 0,
+	NewBoard = BoardGame, !.
+
+getFromStock(BoardGame, NewBoard):-
+	nth0(0, BoardGame, Stock),
+	length(Stock, Len),
+	Len > 0,
+	last(Stock, Card),
+	nth0(1, BoardGame, Discard),
+	append(Discard, [Card], IntermediateDiscard),
+	turn_off_last(IntermediateDiscard, NewDiscard),
+	C is Len - 1,
+	droppp(C, C, Stock, LastCard, NewStock),
+	append([NewStock], [NewDiscard], NewDiscardAndStock),
+	droppp(0, 1, BoardGame, Thrash, BoardWithoutStockAndDiscard),
+	append(NewDiscardAndStock, BoardWithoutStockAndDiscard, NewBoard), !.
+
+
+play_game(BoardGame, _, 1, NewBoard):-
+	getFromStock(BoardGame, NewBoard), !.
+
+play_game(BoardGame, _, 2, NewBoard):-
+	thread_setconcurrency(0, 0),
+	write("Opcao (1) - Mover do descarte para fundacoes.\n
+Opcao (2) - Mover do descarte para colunas.\n
+Opcao (3) - Mover entre as colunas.\n
+Opcao (4) - Mover das colunas para fundacoes.\n 
+Opcao (5) - Embaralhar descarte para estoque. \n
+Outro digito - Voltar.\n"), !,
+	read(Moviment), !,
+	move(BoardGame, Moviment, NewBoard).
+
+
+play_game(BoardGame, Winner, Option, NewBoard):-
 	Option \= 1,
 	Option \= 2, start(2, false).
+
+play(_, true):-
+	start(0, true), !.
 
 play(BoardGame, Winner):-
 	print_current_board(BoardGame),
@@ -251,7 +298,8 @@ Opcao (1) - Puxar uma carta do estoque\n
 Opcao (2) - Fazer um movimento\n
 Outro digito - Encerrar Jogo\n\n"), !,
 	read(Option), !,
-	play_game(BoardGame, Winner, Option).
+	play_game(BoardGame, Winner, Option, NewBoard), !,
+	play(NewBoard, Winner).
 
 start(2, _):- 
 	write("Jogo encerrado.
@@ -261,7 +309,7 @@ start(2, _):-
     {              }
      `.__.'||`.__.'
            ||
-	\n"), !.
+	\n"), !, halt(0).
 
 start(_, true):-
 	write("Parabéns, você venceu!
@@ -283,6 +331,7 @@ Opcao (2) - Encerrar Jogo\n\n"), !,
 	read(X), !,
 	play(BoardGame, false).
 
+:- initialization(main).
 main:-
 	start(0, false),
 halt(0).
