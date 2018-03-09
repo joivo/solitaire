@@ -314,26 +314,22 @@ print_current_board():-
 
 move(Moviment).
 
-getFromStock(BoardGame, NewBoard):-
-	nth0(0, BoardGame, Stock),
-	length(Stock, Len),
-	Len == 0,
-	NewBoard = BoardGame.
-
-getFromStock(BoardGame, NewBoard):-
-	nth0(0, BoardGame, Stock),
+getFromStock():-
+	stock(Stock),
 	length(Stock, Len),
 	Len > 0,
-	last(Stock, Card),
-	nth0(1, BoardGame, Discard),
-	append(Discard, [Card], IntermediateDiscard),
-	turn_off_last(IntermediateDiscard, NewDiscard),
+	last(Stock, X),
+	discard(Discard),
+	turn_off(X, Card),
+	append(Discard, [Card], NewDiscard),
 	C is Len - 1,
-	droppp(C, C, Stock, LastCard, NewStock),
-	append([NewStock], [NewDiscard], NewDiscardAndStock),
-	droppp(0, 1, BoardGame, Thrash, BoardWithoutStockAndDiscard),
-	append(NewDiscardAndStock, BoardWithoutStockAndDiscard, NewBoard).
+	nth0(C, Stock, Elem, NewStock), !,
+	retract(stock(_)),
+	retract(discard(_)),
+	assertz(stock(NewStock)),
+	assertz(discard(NewDiscard));
 
+	getFromStock().
 
 play_game(_, 1):-
 	getFromStock().
