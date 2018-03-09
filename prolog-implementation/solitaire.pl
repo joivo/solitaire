@@ -1,4 +1,10 @@
-
+:- dynamic
+	column(_,_,_,_,_,_,_,_,_,_,_,_,_,_),
+	fundation(_,_),
+	stock(_),
+	discard(_).
+	
+:- initialization(main).
 /*
 	The card representation is a List that the positions, from 0 to 4 is
 	[Value, Suit, Color, IsValid, IsTurned], respectively.
@@ -7,60 +13,55 @@
 card(Value, Suit, Color, IsValid, IsTurned, [Value, Suit, Color, IsValid, IsTurned]).
 
 generateCardsList(Suit, Color, X):-
-	generateCL(1, Suit, Color, [], X)
-	.
+	generateCL(1, Suit, Color, C1),
+	generateCL(2, Suit, Color, C2),
+	generateCL(3, Suit, Color, C3),
+	generateCL(4, Suit, Color, C4),
+	generateCL(5, Suit, Color, C5),
+	generateCL(6, Suit, Color, C6),
+	generateCL(7, Suit, Color, C7),
+	generateCL(8, Suit, Color, C8),
+	generateCL(9, Suit, Color, C9),
+	generateCL(10, Suit, Color, C10),
+	generateCL(11, Suit, Color, C11),
+	generateCL(12, Suit, Color, C12),
+	generateCL(13, Suit, Color, C13),
+	append([C1], [C2], X1),
+	append(X1, [C3], X2),
+	append(X2, [C4], X3),
+	append(X3, [C5], X4),
+	append(X4, [C6], X5),
+	append(X5, [C7], X6),
+	append(X6, [C8], X7),
+	append(X7, [C9], X8),
+	append(X8, [C10], X9),
+	append(X9, [C11], X10),
+	append(X10, [C12], X11),
+	append(X11, [C13], X).
 	
-generateCL(Count, Suit, Color, _, X):-
-	Count == 1,
-	card(Count, Suit, Color, true, true, Card),
-	C is Count + 1,
-	generateCL(C, Suit, Color, [Card], X).
+generateCL(Count, Suit, Color, X):-
+	card(Count, Suit, Color, true, true, X).
 
-generateCL(Count, Suit, Color, List, X):-
-	Count < 14, 
-	card(Count, Suit, Color, true, true, Card),
-	append(List, [Card], L),
-	C is Count + 1,
-	generateCL(C, Suit, Color, L, X).
 
-generateCL(14, _, _, List, X):-
-	X = [List], !.
-
-generateInvalidCards(X):-
-	generateIC(1, [], X)
-	.
-
-generateIC(Count, List, X):-
-	Count < 27,
-	card(Count, 'X', 'X', false, false, Card),
-	append(List, [Card], L),
-	C is Count + 1,
-	generateIC(C, L, X).
-
-generateIC(27, List, X):- 
-	X = List, !.
+generateInvalidCard(Card):-
+	card(0, 'X', 'X', false, false, Card).
 
 generate_deck(X):-
 		generateCardsList('O', 'R', O),
 		generateCardsList('C', 'R', C),
 		generateCardsList('P', 'B', P),
 		generateCardsList('E', 'B', E),
-		nth0(0, O, O1),
-		nth0(0, C, C1),
-		nth0(0, P, P1),
-		nth0(0, E, E1),
-		append(O1, C1, L1),
-		append(P1, E1, L2),
-		append(L1, L2, Deck),
+		append(O, C, L1),
+		append(L1, P, L2),
+		append(L2, E, Deck),
 		random_permutation(Deck, X).
 
 valid_cards_amount(Cards, X):-
-	vc_amount(0, Cards, X)
-	.
+	vc_amount(0, Cards, X), !.
 
 vc_amount(Count, Cards, X):-
 	length(Cards, Len),
-	Len =< Count, X = Count, !.
+	Len =< Count, X = Count.
 
 vc_amount(Count, Cards, X):-
 	length(Cards, Len),
@@ -68,7 +69,7 @@ vc_amount(Count, Cards, X):-
 	nth0(Count, Cards, Card),
 	nth0(3, Card, IsValid),
 	IsValid == false,
-	X = Count, !.
+	X = Count.
 
 vc_amount(Count, Cards, X):-
 	length(Cards, Len),
@@ -91,13 +92,90 @@ turn_off_last(Cards, X):-
 	nth0(0, Elem, Value), nth0(1, Elem, Suit),
 	nth0(2, Elem, Color), card(Value, Suit, Color, true, false, Card),
 	nth1(Num, X, Card, Rest).
+
+turn_off(X, Card):-
+	nth0(0, X, Value), nth0(1, X, Suit),
+	nth0(2, X, Color), card(Value, Suit, Color, true, false, Card).
+
+generate_column(1, Col):-
+	generateInvalidCard(InvalidCard),
+	nth0(0, Col, X),
+	turn_off(X, Card),
+	assertz(column(1, Card, InvalidCard, InvalidCard, InvalidCard,
+	InvalidCard, InvalidCard, InvalidCard, InvalidCard, InvalidCard,
+	InvalidCard, InvalidCard, InvalidCard, InvalidCard)).
 	
-generate_board(BoardGame):-
+generate_column(2, Col):-
+	generateInvalidCard(InvalidCard),
+	nth0(0, Col, Card1),
+	nth0(1, Col, X),
+	turn_off(X, Card2),
+	assertz(column(2, Card1, Card2, InvalidCard, InvalidCard,
+	InvalidCard, InvalidCard, InvalidCard, InvalidCard, InvalidCard,
+	InvalidCard, InvalidCard, InvalidCard, InvalidCard)).
+
+generate_column(3, Col):-
+	generateInvalidCard(InvalidCard),
+	nth0(0, Col, Card1),
+	nth0(1, Col, Card2),
+	nth0(2, Col, X),
+	turn_off(X, Card3),
+	assertz(column(3, Card1, Card2, Card3, InvalidCard,
+	InvalidCard, InvalidCard, InvalidCard, InvalidCard, InvalidCard,
+	InvalidCard, InvalidCard, InvalidCard, InvalidCard)).
+
+generate_column(4, Col):-
+	generateInvalidCard(InvalidCard),
+	nth0(0, Col, Card1),
+	nth0(1, Col, Card2),
+	nth0(2, Col, Card3),
+	nth0(3, Col, X),
+	turn_off(X, Card4),
+	assertz(column(4, Card1, Card2, Card3, Card4,
+	InvalidCard, InvalidCard, InvalidCard, InvalidCard, InvalidCard,
+	InvalidCard, InvalidCard, InvalidCard, InvalidCard)).
+
+generate_column(5, Col):-
+	generateInvalidCard(InvalidCard),
+	nth0(0, Col, Card1),
+	nth0(1, Col, Card2),
+	nth0(2, Col, Card3),
+	nth0(3, Col, Card4),
+	nth0(4, Col, X),
+	turn_off(X, Card5),
+	assertz(column(5, Card1, Card2, Card3, Card4,
+	Card5, InvalidCard, InvalidCard, InvalidCard, InvalidCard,
+	InvalidCard, InvalidCard, InvalidCard, InvalidCard)).
+
+generate_column(6, Col):-
+	generateInvalidCard(InvalidCard),
+	nth0(0, Col, Card1),
+	nth0(1, Col, Card2),
+	nth0(2, Col, Card3),
+	nth0(3, Col, Card4),
+	nth0(4, Col, Card5),
+	nth0(5, Col, X),
+	turn_off(X, Card6),
+	assertz(column(6, Card1, Card2, Card3, Card4,
+	Card5, Card6, InvalidCard, InvalidCard, InvalidCard,
+	InvalidCard, InvalidCard, InvalidCard, InvalidCard)).
+
+generate_column(7, Col):-
+	generateInvalidCard(InvalidCard),
+	nth0(0, Col, Card1),
+	nth0(1, Col, Card2),
+	nth0(2, Col, Card3),
+	nth0(3, Col, Card4),
+	nth0(4, Col, Card5),
+	nth0(5, Col, Card6),
+	nth0(6, Col, X),
+	turn_off(X, Card7),
+	assertz(column(7, Card1, Card2, Card3, Card4,
+	Card5, Card6, Card7, InvalidCard, InvalidCard,
+	InvalidCard, InvalidCard, InvalidCard, InvalidCard)).
+
+generate_board():-
 	generate_deck(Deck),
-	append([[]], [[]], L2),
-	append(L2, [[]], L3),
-	append(L3, [[]], L4),
-	append(L4, [[]], L5),
 	droppp(0, 0, Deck, Col1, Deck1), 
 	droppp(0, 1, Deck1, Col2, Deck2),
 	droppp(0, 2, Deck2, Col3, Deck3),
@@ -105,32 +183,22 @@ generate_board(BoardGame):-
 	droppp(0, 4, Deck4, Col5, Deck5),
 	droppp(0, 5, Deck5, Col6, Deck6),
 	droppp(0, 6, Deck6, Col7, Deck7),
-	turn_off_last(Col1, C1),
-	turn_off_last(Col2, C2),
-	turn_off_last(Col3, C3),
-	turn_off_last(Col4, C4),
-	turn_off_last(Col5, C5),
-	turn_off_last(Col6, C6),
-	turn_off_last(Col7, C7),
-	generateInvalidCards(InvalidCards),
-	append(C1, InvalidCards, Cl1),
-	append(C2, InvalidCards, Cl2),
-	append(C3, InvalidCards, Cl3),
-	append(C4, InvalidCards, Cl4),
-	append(C5, InvalidCards, Cl5),
-	append(C6, InvalidCards, Cl6),
-	append(C7, InvalidCards, Cl7),
-	append(L5, [Cl1], L6),
-	append(L6, [Cl2], L7),
-	append(L7, [Cl3], L8),
-	append(L8, [Cl4], L9),
-	append(L9, [Cl5], L10),
-	append(L10, [Cl6], L11),
-	append(L11, [Cl7], L12),
-	append([Deck7], L12, BoardGame).
+	assertz(stock(Deck7)),
+	assertz(discard([])),
+	assertz(fundation(1, [])),
+	assertz(fundation(2, [])),
+	assertz(fundation(3, [])),
+	assertz(fundation(4, [])),
+	generate_column(1, Col1),
+	generate_column(2, Col2),
+	generate_column(3, Col3),
+	generate_column(4, Col4),
+	generate_column(5, Col5),
+	generate_column(6, Col6),
+	generate_column(7, Col7).
 
 droppp(To, From, List, Elements, L):-
-	drop(To, From, List, [], Elements, L).
+	drop(To, From, List, [], Elements, L), !.
 
 drop(To, From, List, Elems, Elements, L):-
 	To == From,
@@ -182,27 +250,31 @@ print_upside(List, String):-
 	last(List, Last),
 	card_to_string(Last, String).
 
-p_downside(BoardGame):-
-	print_downside(0, BoardGame)
-	.
 
-print_downside(14, _):- !.
-print_downside(Count, BoardGame):-
-	Count >= 0, Count < 14,
-	nth0(6, BoardGame, C1),
-	nth0(7, BoardGame, C2),
-	nth0(8, BoardGame, C3),
-	nth0(9, BoardGame, C4),
-	nth0(10, BoardGame, C5),
-	nth0(11, BoardGame, C6),
-	nth0(12, BoardGame, C7),
-	nth0(Count, C1, E1),
-	nth0(Count, C2, E2),
-	nth0(Count, C3, E3),
-	nth0(Count, C4, E4),
-	nth0(Count, C5, E5),
-	nth0(Count, C6, E6),
-	nth0(Count, C7, E7),
+p_downside():-
+	column(1 ,E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13),
+	column(2 ,F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13),
+	column(3 ,G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13),
+	column(4 ,H1, H2, H3, H4, H5, H6, H7, H8, H9, H10, H11, H12, H13),
+	column(5 ,I1, I2, I3, I4, I5, I6, I7, I8, I9, I10, I11, I12, I13),
+	column(6 ,K1, K2, K3, K4, K5, K6, K7, K8, K9, K10, K11, K12, K13),
+	column(7 ,J1, J2, J3, J4, J5, J6, J7, J8, J9, J10, J11, J12, J13),
+	print_column(E1, F1, G1, H1, I1, K1, J1),
+	print_column(E2, F2, G2, H2, I2, K2, J2),
+	print_column(E3, F3, G3, H3, I3, K3, J3),
+	print_column(E4, F4, G4, H4, I4, K4, J4),
+	print_column(E5, F5, G5, H5, I5, K5, J5),
+	print_column(E6, F6, G6, H6, I6, K6, J6),
+	print_column(E7, F7, G7, H7, I7, K7, J7),
+	print_column(E8, F8, G8, H8, I8, K8, J8),
+	print_column(E9, F9, G9, H9, I9, K9, J9),
+	print_column(E10, F10, G10, H10, I10, K10, J10),
+	print_column(E11, F11, G11, H11, I11, K11, J11),
+	print_column(E12, F12, G12, H12, I12, K12, J12),
+	print_column(E13, F13, G13, H13, I13, K13, J13),
+	write('\n').
+
+print_column(E1, E2, E3, E4, E5, E6, E7):-
 	card_to_string(E1, Str1),
 	card_to_string(E2, Str2),
 	card_to_string(E3, Str3),
@@ -210,19 +282,16 @@ print_downside(Count, BoardGame):-
 	card_to_string(E5, Str5),
 	card_to_string(E6, Str6),
 	card_to_string(E7, Str7),
-	atom_concat('', Str1, Out1),
-	atom_concat(Out1, Str2, Out2),
-	atom_concat(Out2, Str3, Out3),
-	atom_concat(Out3, Str4, Out4),
-	atom_concat(Out4, Str5, Out5),
-	atom_concat(Out5, Str6, Out6),
-	atom_concat(Out6, Str7, Out7),
-	atom_concat(Out7, '\n', Out8),
-	C is Count + 1,
-	write(Out8), !,
-	print_downside(C, BoardGame), !.
-
-print_upside(Deck, Discard, F1, F2, F3, F4):-
+	write(Str1), write(Str2), write(Str3), write(Str4),
+	write(Str5), write(Str6), write(Str7), write('\n').
+	
+print_upside():-
+	stock(Deck),
+	discard(Discard),
+	fundation(1, F1),
+	fundation(2, F2),
+	fundation(3, F3),
+	fundation(4, F4),
 	print_upside(Deck, DeckStr),
 	print_upside(Discard, DiscardStr),
 	print_upside(F1, F1Str),
@@ -237,21 +306,19 @@ print_upside(Deck, Discard, F1, F2, F3, F4):-
 	atom_concat(Str5, F4Str, Str6),
 	atom_concat(Str6, '\n', Str7),
 	atom_concat(Str7, '------------------------------------------\n', Str8),
-	write(Str8), !.
-	
-print_current_board(BoardGame):-
-	nth0(0, BoardGame, Deck), nth0(1, BoardGame, Discard), nth0(2, BoardGame, F1),
-	nth0(3, BoardGame, F2), nth0(4, BoardGame, F3), nth0(5, BoardGame, F4), !,
-	print_upside(Deck, Discard, F1, F2, F3, F4), !,
-	p_downside(BoardGame).
+	write(Str8).
 
-move(BoardGame, Moviment, NewBoard).
+print_current_board():-
+	print_upside(),
+	p_downside().
+
+move(Moviment).
 
 getFromStock(BoardGame, NewBoard):-
 	nth0(0, BoardGame, Stock),
 	length(Stock, Len),
 	Len == 0,
-	NewBoard = BoardGame, !.
+	NewBoard = BoardGame.
 
 getFromStock(BoardGame, NewBoard):-
 	nth0(0, BoardGame, Stock),
@@ -265,14 +332,13 @@ getFromStock(BoardGame, NewBoard):-
 	droppp(C, C, Stock, LastCard, NewStock),
 	append([NewStock], [NewDiscard], NewDiscardAndStock),
 	droppp(0, 1, BoardGame, Thrash, BoardWithoutStockAndDiscard),
-	append(NewDiscardAndStock, BoardWithoutStockAndDiscard, NewBoard), !.
+	append(NewDiscardAndStock, BoardWithoutStockAndDiscard, NewBoard).
 
 
-play_game(BoardGame, _, 1, NewBoard):-
-	getFromStock(BoardGame, NewBoard), !.
+play_game(_, 1):-
+	getFromStock().
 
-play_game(BoardGame, _, 2, NewBoard):-
-	thread_setconcurrency(0, 0),
+play_game( _, 2):-
 	write("Opcao (1) - Mover do descarte para fundacoes.\n
 Opcao (2) - Mover do descarte para colunas.\n
 Opcao (3) - Mover entre as colunas.\n
@@ -280,26 +346,26 @@ Opcao (4) - Mover das colunas para fundacoes.\n
 Opcao (5) - Embaralhar descarte para estoque. \n
 Outro digito - Voltar.\n"), !,
 	read(Moviment), !,
-	move(BoardGame, Moviment, NewBoard).
+	move(Moviment).
 
 
-play_game(BoardGame, Winner, Option, NewBoard):-
+play_game(Winner, Option):-
 	Option \= 1,
 	Option \= 2, start(2, false).
 
-play(_, true):-
-	start(0, true), !.
+play(true):-
+	start(0, true).
 
-play(BoardGame, Winner):-
-	print_current_board(BoardGame),
+play(Winner):-
+	print_current_board(),
 	write("
 ----------------------------------------\n
 Opcao (1) - Puxar uma carta do estoque\n
 Opcao (2) - Fazer um movimento\n
-Outro digito - Encerrar Jogo\n\n"), !,
+Outro digito - Encerrar Jogo\n\n"),
 	read(Option), !,
-	play_game(BoardGame, Winner, Option, NewBoard), !,
-	play(NewBoard, Winner).
+	play_game(Winner, Option),
+	play(Winner).
 
 start(2, _):- 
 	write("Jogo encerrado.
@@ -309,7 +375,7 @@ start(2, _):-
     {              }
      `.__.'||`.__.'
            ||
-	\n"), !, halt(0).
+	\n"), halt(0).
 
 start(_, true):-
 	write("Parabéns, você venceu!
@@ -322,16 +388,15 @@ start(_, true):-
 	\n"), !.
 
 start(Num, Winner):-
-	generate_board(BoardGame),
+	generate_board(),
 	write("----------------------------------------\n
 		Solitaire\n
 ----------------------------------------\n
 Opcao (1) - Iniciar Jogo\n
-Opcao (2) - Encerrar Jogo\n\n"), !,
-	read(X), !,
-	play(BoardGame, false).
+Opcao (2) - Encerrar Jogo\n\n"),
+	read(X), 
+	play(false).
 
-:- initialization(main).
 main:-
 	start(0, false),
 halt(0).
