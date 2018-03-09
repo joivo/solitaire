@@ -2,10 +2,8 @@
 	column(_,_,_,_,_,_,_,_,_,_,_,_,_,_),
 	fundation(_,_),
 	stock(_),
-	discard(_),
-	last_elem(_),
-	position_of_last(_).
-
+	discard(_).
+:-discontiguous(move/1).
 :- initialization(main).
 /*
 	The card representation is a List that the positions, from 0 to 4 is
@@ -318,7 +316,7 @@ confirm_to_fund(Fund, X, Card):-
 	append(X, [Card], Fundation),
 	discard(Discard),
 	length(Discard, Y),
-	nth1(Y, Discard, Elem, NewDiscard),
+	nth1(Y, Discard, _, NewDiscard),
 	retract(discard(_)),
 	retract(fundation(Fund, _)),
 	assertz(discard(NewDiscard)),
@@ -355,8 +353,7 @@ move(1):-
 	nth0(0, Card, Value),
 	nth0(1, Card, Suit),
 	discard_to_fundation(Card, Value, Suit), !,
-	play(false);
-	move(1).
+	play(false).
 
 get_last_valid_card(Num, Card, X, Y):-
 	column(Num, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13),
@@ -374,7 +371,7 @@ get_last_valid_card(Num, Card, X, Y):-
 	nth0(3, E12, IV12),
 	nth0(3, E13, IV13),
 	(IV1 == false,
-		discard_to_specific_col(Num, 0, Card);
+		X = Card, Y = 0;
 	IV1 == true, IV2 == false,
 		X = E1, Y = 1;
 	IV2 == true, IV3 == false,
@@ -403,98 +400,98 @@ get_last_valid_card(Num, Card, X, Y):-
 		X = [], Y = 13).
 
 discard_to_specific_col(Num, 0, Card):-
-	column(Num, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13),
+	column(Num, _, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13),
 	nth0(0, Card, Value),
 	Value == 13,
 	retract(column(Num,_,_,_,_,_,_,_,_,_,_,_,_,_)),
-	assertz(column(Num, Card, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13)).
+	assertz(column(Num, Card, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13)),
+	discard(Discard),
+	length(Discard, Len),
+	nth1(Len, Discard, _, NewDiscard),
+	retract(discard(_)),
+	assertz(discard(NewDiscard)).
 
 discard_to_specific_col(Num, 1, Card):-
-	column(Num, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13),
-	nth0(0, Card, Value),
+	column(Num, E1, _, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13),
 	retract(column(Num,_,_,_,_,_,_,_,_,_,_,_,_,_)),
 	assertz(column(Num, E1, Card, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13)).
 
 discard_to_specific_col(Num, 2, Card):-
-	column(Num, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13),
-	nth0(0, Card, Value),
+	column(Num, E1, E2, _, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13),
 	retract(column(Num,_,_,_,_,_,_,_,_,_,_,_,_,_)),
 	assertz(column(Num, E1, E2, Card, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13)).
 
 discard_to_specific_col(Num, 3, Card):-
-	column(Num, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13),
-	nth0(0, Card, Value),
+	column(Num, E1, E2, E3, _, E5, E6, E7, E8, E9, E10, E11, E12, E13),
 	retract(column(Num,_,_,_,_,_,_,_,_,_,_,_,_,_)),
 	assertz(column(Num, E1, E2, E3, Card, E5, E6, E7, E8, E9, E10, E11, E12, E13)).
 
 discard_to_specific_col(Num, 4, Card):-
-	column(Num, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13),
-	nth0(0, Card, Value),
+	column(Num, E1, E2, E3, E4, _, E6, E7, E8, E9, E10, E11, E12, E13),
 	retract(column(Num,_,_,_,_,_,_,_,_,_,_,_,_,_)),
 	assertz(column(Num, E1, E2, E3, E4, Card, E6, E7, E8, E9, E10, E11, E12, E13)).
 
 discard_to_specific_col(Num, 5, Card):-
-	column(Num, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13),
-	nth0(0, Card, Value),
+	column(Num, E1, E2, E3, E4, E5, _, E7, E8, E9, E10, E11, E12, E13),
 	retract(column(Num,_,_,_,_,_,_,_,_,_,_,_,_,_)),
 	assertz(column(Num, E1, E2, E3, E4, E5, Card, E7, E8, E9, E10, E11, E12, E13)).
 
 discard_to_specific_col(Num, 6, Card):-
-	column(Num, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13),
-	nth0(0, Card, Value),
+	column(Num, E1, E2, E3, E4, E5, E6, _, E8, E9, E10, E11, E12, E13),
 	retract(column(Num,_,_,_,_,_,_,_,_,_,_,_,_,_)),
 	assertz(column(Num, E1, E2, E3, E4, E5, E6, Card, E8, E9, E10, E11, E12, E13)).
 
 discard_to_specific_col(Num, 7, Card):-
-	column(Num, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13),
-	nth0(0, Card, Value),
+	column(Num, E1, E2, E3, E4, E5, E6, E7, _, E9, E10, E11, E12, E13),
 	retract(column(Num,_,_,_,_,_,_,_,_,_,_,_,_,_)),
 	assertz(column(Num, E1, E2, E3, E4, E5, E6, E7, Card, E9, E10, E11, E12, E13)).
 
 discard_to_specific_col(Num, 8, Card):-
-	column(Num, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13),
-	nth0(0, Card, Value),
+	column(Num, E1, E2, E3, E4, E5, E6, E7, E8, _, E10, E11, E12, E13),
 	retract(column(Num,_,_,_,_,_,_,_,_,_,_,_,_,_)),
 	assertz(column(Num, E1, E2, E3, E4, E5, E6, E7, E8, Card, E10, E11, E12, E13)).
 
 discard_to_specific_col(Num, 9, Card):-
-	column(Num, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13),
-	nth0(0, Card, Value),
+	column(Num, E1, E2, E3, E4, E5, E6, E7, E8, E9, _, E11, E12, E13),
 	retract(column(Num,_,_,_,_,_,_,_,_,_,_,_,_,_)),
 	assertz(column(Num, E1, E2, E3, E4, E5, E6, E7, E8, E9, Card, E11, E12, E13)).
 
 discard_to_specific_col(Num, 10, Card):-
-	column(Num, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13),
-	nth0(0, Card, Value),
+	column(Num, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, _, E12, E13),
 	retract(column(Num,_,_,_,_,_,_,_,_,_,_,_,_,_)),
 	assertz(column(Num, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, Card, E12, E13)).
 
 discard_to_specific_col(Num, 11, Card):-
-	column(Num, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13),
-	nth0(0, Card, Value),
+	column(Num, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, _, E13),
 	retract(column(Num,_,_,_,_,_,_,_,_,_,_,_,_,_)),
 	assertz(column(Num, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, Card, E13)).
 
 discard_to_specific_col(Num, 12, Card):-
-	column(Num, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13),
-	nth0(0, Card, Value),
+	column(Num, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, _),
 	retract(column(Num,_,_,_,_,_,_,_,_,_,_,_,_,_)),
 	assertz(column(Num, E1, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, Card)).
+
+discard_to_specific_col(Num, 13, Card):-
+	column(Num, _, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13),
+	retract(column(Num,_,_,_,_,_,_,_,_,_,_,_,_,_)),
+	assertz(column(Num, Card, E2, E3, E4, E5, E6, E7, E8, E9, E10, E11, E12, E13)).
 
 discard_to_column(Card, Num, Value, Color):-
 	V is Value + 1,
 	get_last_valid_card(Num, Card, X, Y),
-	Y < 13,
-	nth0(0, X, ValueLastCard),
-	nth0(2, X, ColorLastCard),
-	V == ValueLastCard,
-	Color \= ColorLastCard,
-	discard_to_specific_col(Num, Y, Card),
-	discard(Discard),
-	length(Discard, Len),
-	nth1(Len, Discard, Elem, NewDiscard),
-	retract(discard(_)),
-	assertz(discard(NewDiscard)).
+	(Y < 13, Y > 0,
+		nth0(0, X, ValueLastCard),
+		nth0(2, X, ColorLastCard),
+		V == ValueLastCard,
+		Color \= ColorLastCard,
+		discard_to_specific_col(Num, Y, Card),
+		discard(Discard),
+		length(Discard, Len),
+		nth1(Len, Discard, _, NewDiscard),
+		retract(discard(_)),
+		assertz(discard(NewDiscard));
+	Y == 0,
+		discard_to_specific_col(Num, Y, Card)).
 
 move(2):-
 	discard(Discard),
@@ -509,6 +506,43 @@ move(2):-
 		play(false);
 	Len == 0,
 		play(false)).
+
+column_to_discard(Num):-
+	get_last_valid_card(Num, [], X, Y),
+	(Y > 0,
+		discard(Discard),
+		append(Discard, [X], NewDiscard),
+		retract(discard(_)),
+		assertz(discard(NewDiscard)),
+		length(NewDiscard, DiscardLength),
+		nth0(0, X, Value),
+		nth0(1, X, Suit),
+		discard_to_fundation(X, Value, Suit),
+		discard(UpdatedDiscard),
+		length(UpdatedDiscard, UpdatedDiscardLength),
+		(UpdatedDiscardLength \= DiscardLength,
+			generateInvalidCard(InvalidCard),
+			(Y > 1,
+				H is Y -1,
+				discard_to_specific_col(Num, H, InvalidCard),
+				get_last_valid_card(Num, [], Z, T),
+				turn_off(Z, TurnedCard),
+				K is T - 1,
+				discard_to_specific_col(Num, K, TurnedCard);
+			Y == 1,
+				discard_to_specific_col(Num, 13, InvalidCard)),
+		UpdatedDiscardLength == DiscardLength,
+			nth1(UpdatedDiscardLength, UpdatedDiscard, _, NewUpdated),
+			retract(discard(_)),
+			assertz(discard(NewUpdated)))).
+
+
+move(4):-
+	write('Digite a coluna de origem da carta\n'),
+	read(Num),
+	Num > 0, Num < 8,
+	column_to_discard(Num),
+	play(false).
 
 move(5):-
 	discard(Discard),
@@ -540,7 +574,7 @@ getFromStock():-
 	turn_off(X, Card),
 	append(Discard, [Card], NewDiscard),
 	C is Len - 1,
-	nth0(C, Stock, Elem, NewStock),
+	nth0(C, Stock, _, NewStock),
 	retract(stock(_)),
 	retract(discard(_)),
 	assertz(stock(NewStock)),
@@ -565,7 +599,7 @@ Outro digito - Voltar.\n"), !,
 
 play_game(Winner, Option):-
 	Option \= 1,
-	Option \= 2, start(2, false).
+	Option \= 2, start(2, Winner).
 
 play(true):-
 	start(0, true).
@@ -600,15 +634,18 @@ start(_, true):-
            ||
 	\n"), !.
 
-start(Num, Winner):-
+start(_, Winner):-
 	generate_board(),
 	write("----------------------------------------\n
 		Solitaire\n
 ----------------------------------------\n
 Opcao (1) - Iniciar Jogo\n
 Opcao (2) - Encerrar Jogo\n\n"),
-	read(X), 
-	play(false).
+	read(X),
+	(X == 1,
+		play(Winner);
+	X == 2,
+		start(2, Winner)).
 
 main:-
 	start(0, false),
