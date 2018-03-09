@@ -312,7 +312,57 @@ print_current_board():-
 	print_upside(),
 	p_downside().
 
-move(Moviment).
+confirm_to_fund(Fund, X, Card):-
+	append(X, [Card], Fundation),
+	discard(Discard),
+	length(Discard, Y),
+	nth1(Y, Discard, Elem, NewDiscard),
+	retract(discard(_)),
+	retract(fundation(Fund, _)),
+	assertz(discard(NewDiscard)),
+	assertz(fundation(Fund, Fundation)).
+
+discard_to_specific_fund(Fund, Card, Value):-
+	fundation(Fund, X),
+	length(X, Len),
+		(Len == 0,
+			Value == 1,
+			confirm_to_fund(Fund, X, Card);
+		Len > 0,
+			last(X, LastCard),
+			nth0(0, LastCard, ValueLastCard),
+			Num is ValueLastCard + 1,
+			Num == Value,
+			confirm_to_fund(Fund, X, Card)).
+
+discard_to_fundation(Card, Value, Suit):-
+	(Suit == 'O',
+		discard_to_specific_fund(1, Card, Value);
+	Suit == 'C',
+		discard_to_specific_fund(2, Card, Value);
+	Suit == 'P',
+		discard_to_specific_fund(3, Card, Value);
+	Suit == 'E',
+		discard_to_specific_fund(4, Card, Value)).
+
+move(1):-
+	discard(Discard),
+	length(Discard, Len),
+	Len > 0,
+	last(Discard, Card),
+	nth0(0, Card, Value),
+	nth0(1, Card, Suit),
+	discard_to_fundation(Card, Value, Suit), !,
+	play(false);
+	move(1).
+
+move(Option):-
+	Option \= 1,
+	Option \= 2,
+	Option \= 3,
+	Option \= 4,
+	Option \= 5,
+	play(false).
 
 getFromStock():-
 	stock(Stock),
@@ -323,15 +373,16 @@ getFromStock():-
 	turn_off(X, Card),
 	append(Discard, [Card], NewDiscard),
 	C is Len - 1,
-	nth0(C, Stock, Elem, NewStock), !,
+	nth0(C, Stock, Elem, NewStock),
 	retract(stock(_)),
 	retract(discard(_)),
 	assertz(stock(NewStock)),
-	assertz(discard(NewDiscard));
-
-	getFromStock().
+	assertz(discard(NewDiscard)).
 
 play_game(_, 1):-
+	getFromStock(), !,
+	play(false);
+
 	getFromStock().
 
 play_game( _, 2):-
@@ -359,9 +410,8 @@ play(Winner):-
 Opcao (1) - Puxar uma carta do estoque\n
 Opcao (2) - Fazer um movimento\n
 Outro digito - Encerrar Jogo\n\n"),
-	read(Option), !,
-	play_game(Winner, Option),
-	play(Winner).
+	read(Option),
+	play_game(Winner, Option).
 
 start(2, _):- 
 	write("Jogo encerrado.
