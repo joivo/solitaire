@@ -499,13 +499,28 @@ discard_to_column(Card, Num, Value, Color):-
 move(2):-
 	discard(Discard),
 	length(Discard, Len),
+	(Len > 0,
+		last(Discard, Card),
+		nth0(0, Card, Value),
+		nth0(2, Card, Color),
+		write('Digite para que coluna deseja mover\n'),
+		read(Num),
+		discard_to_column(Card, Num, Value, Color),
+		play(false);
+	Len == 0,
+		play(false)).
+
+move(5):-
+	discard(Discard),
+	length(Discard, Len),
 	Len > 0,
-	last(Discard, Card),
-	nth0(0, Card, Value),
-	nth0(2, Card, Color),
-	write('Digite para que coluna deseja mover\n'),
-	read(Num),
-	discard_to_column(Card, Num, Value, Color), !,
+	stock(Stock),
+	append(Stock, Discard, X),
+	random_permutation(X, NewStock),
+	retract(discard(_)),
+	retract(stock(_)),
+	assertz(discard([])),
+	assertz(stock(NewStock)),
 	play(false).
 
 move(Option):-
