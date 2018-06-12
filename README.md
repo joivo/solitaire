@@ -5,12 +5,12 @@ Solitaire é um famoso jogo de cartas para um só jogador. Este projeto tem por 
 São eles:
 - Procedural (Imperativo)
 - Funcional
-- Lógico [Em andamento]
+- Lógico 
 
 As linguagens utilizadas para ilustração de cada paradigma foram, respectivamente:
 - C++
 - Haskell
-- Prolog [Em andamento]
+- Prolog 
 
 Este projeto faz parte da disciplina de Paradigmas de Linguagens de Programação ministrada no período 2017-2 no curso de Bacharelado em Ciência da Computação, da Universidade Federal de Campina Grande.
 
